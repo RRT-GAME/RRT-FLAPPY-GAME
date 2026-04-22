@@ -88,107 +88,239 @@ let bird,pipes=[];
 let score=0,coins=0,best=0;
 let frame=0;
 
-/* ================= BETTER UPDATE SYSTEM ================= */
+/* ================= RRT UPDATE SYSTEM (FIXED FINAL v2) ================= */
 
 const CURRENT_VERSION = "1.0.0";
-let updateShown = false;
 
-function isNewerVersion(remote, local){
-  const a = remote.split(".").map(Number);
-  const b = local.split(".").map(Number);
+class UpdateManager {
+  constructor() {
+    this.updateOpen = false;
+    this.updateLocked = false;
+    this.updateChecking = false;
 
-  for(let i=0;i<Math.max(a.length,b.length);i++){
-    const x = a[i] || 0;
-    const y = b[i] || 0;
+    this.interval = null;
+    this.audioCtx = null;
 
-    if(x > y) return true;
-    if(x < y) return false;
+    this.init();
   }
-  return false;
-}
 
-async function checkForUpdates(){
-  try{
-    const res = await fetch("update.json?nocache=" + Date.now(), {
-      cache:"no-store"
+  // ================= INIT =================
+  init() {
+    this.checkForUpdates();
+    this.startInterval();
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        this.checkForUpdates();
+      }
     });
 
-    if(!res.ok) return;
+    // ensure cleanup
+    window.addEventListener("beforeunload", () => this.destroy());
+  }
 
-    const data = await res.json();
-    if(!data.version) return;
+  startInterval() {
+    this.interval = setInterval(() => {
+      if (window.state === "menu") {
+        this.checkForUpdates();
+      }
+    }, 15000);
+  }
 
-    // 👉 WICHTIG: fallback auf CURRENT_VERSION
-    
-let savedVersion = localStorage.getItem("rrt_version");
+  destroy() {
+    if (this.interval) clearInterval(this.interval);
+    this.interval = null;
+  }
 
-if(!savedVersion){
-  savedVersion = CURRENT_VERSION;
-  localStorage.setItem("rrt_version", CURRENT_VERSION);
-}
-    console.log("Local:", savedVersion, "Remote:", data.version);
+  // ================= VERSION =================
+  isNewerVersion(remote = "0.0.0", local = "0.0.0") {
+    const parse = v => v.split(".").map(x => parseInt(x, 10) || 0);
 
-    // 👉 FIX: Wenn LocalStorage kaputt → reset
-    if(!savedVersion.match(/^\d+\.\d+\.\d+$/)){
-      savedVersion = CURRENT_VERSION;
-      localStorage.setItem("rrt_version", CURRENT_VERSION);
+    const a = parse(remote);
+    const b = parse(local);
+
+    for (let i = 0; i < 3; i++) {
+      if (a[i] > b[i]) return true;
+      if (a[i] < b[i]) return false;
+    }
+    return false;
+  }
+
+  getSavedVersion() {
+    try {
+      let v = localStorage.getItem("rrt_version");
+
+      if (!v || !/^\d+\.\d+\.\d+$/.test(v)) {
+        localStorage.setItem("rrt_version", CURRENT_VERSION);
+        return CURRENT_VERSION;
+      }
+
+      return v;
+    } catch {
+      return CURRENT_VERSION;
+    }
+  }
+
+  // ================= SOUND =================
+  playUpdateSound() {
+    try {
+      if (!this.audioCtx) {
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      const ctx = this.audioCtx;
+      if (ctx.state === "suspended") ctx.resume();
+
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+
+      o.type = "sine";
+      o.frequency.value = 660;
+      g.gain.value = 0.08;
+
+      o.connect(g);
+      g.connect(ctx.destination);
+
+      o.start();
+      o.stop(ctx.currentTime + 0.15);
+    } catch {}
+  }
+
+  // ================= UI =================
+  showUpdateUI(data) {
+    if (this.updateOpen) return;
+
+    const updates = document.getElementById("updates");
+    const log = document.getElementById("log");
+
+    if (!updates || !log || !data) return;
+
+    this.updateOpen = true;
+
+    const container = document.createElement("div");
+    container.style.textAlign = "center";
+
+    const title = document.createElement("h2");
+    title.textContent = `🔥 UPDATE ${data.version}`;
+
+    const subtitle = document.createElement("p");
+    subtitle.textContent = "Neue Version verfügbar";
+    subtitle.style.fontWeight = "bold";
+
+    const listTitle = document.createElement("h3");
+    listTitle.textContent = "Patch Notes";
+
+    const ul = document.createElement("ul");
+
+    if (Array.isArray(data.patchNotes) && data.patchNotes.length) {
+      data.patchNotes.forEach(note => {
+        const li = document.createElement("li");
+        li.textContent = note;
+        ul.appendChild(li);
+      });
+    } else {
+      const li = document.createElement("li");
+      li.textContent = "Keine Patch Notes";
+      ul.appendChild(li);
     }
 
-    if(!isNewerVersion(data.version, savedVersion)) return;
-    if(updateShown) return;
+    const installBtn = document.createElement("button");
+    installBtn.textContent = "⬇ UPDATE INSTALLIEREN";
+    installBtn.addEventListener("click", () => this.installUpdate(data.version));
 
-    updateShown = true;
-    showUpdatePopup(data);
+    container.appendChild(title);
+    container.appendChild(subtitle);
+    container.appendChild(listTitle);
+    container.appendChild(ul);
+    container.appendChild(document.createElement("br"));
+    container.appendChild(installBtn);
 
-  }catch(e){
-    console.log("Update check failed", e);
+    if (data.forceUpdate) {
+      const warn = document.createElement("p");
+      warn.textContent = "⚠ FORCE UPDATE REQUIRED";
+      warn.style.color = "red";
+      warn.style.fontWeight = "bold";
+      container.appendChild(warn);
+
+      this.updateLocked = true;
+    } else {
+      const closeBtn = document.createElement("button");
+      closeBtn.textContent = "SPÄTER";
+      closeBtn.addEventListener("click", () => this.closeUpdates());
+      container.appendChild(document.createElement("br"));
+      container.appendChild(document.createElement("br"));
+      container.appendChild(closeBtn);
+    }
+
+    log.innerHTML = "";
+    log.appendChild(container);
+
+    updates.style.display = "block";
+    updates.classList.add("show");
+
+    this.playUpdateSound();
   }
-}
 
-function showUpdatePopup(data){
+  // ================= CHECK =================
+  async checkForUpdates() {
+    if (this.updateChecking || this.updateLocked || this.updateOpen) return;
 
-  let notesHTML = "<p>Keine Infos</p>";
+    this.updateChecking = true;
 
-  if(Array.isArray(data.patchNotes) && data.patchNotes.length){
-    notesHTML = "<ul>" + data.patchNotes.map(n=>`<li>${n}</li>`).join("") + "</ul>";
+    try {
+      const res = await fetch("update.json?nocache=" + Date.now(), {
+        cache: "no-store"
+      });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      if (!data?.version) return;
+
+      const local = this.getSavedVersion();
+
+      if (!this.isNewerVersion(data.version, local)) return;
+
+      this.showUpdateUI(data);
+
+    } catch (e) {
+      console.log("Update error:", e);
+    } finally {
+      this.updateChecking = false;
+    }
   }
 
-  log.innerHTML = `
-    <h2>🔄 Update ${data.version}</h2>
-    <h3>Patch Notes:</h3>
-    ${notesHTML}
-    <button onclick="installUpdate('${data.version}')">⬇ Installieren</button>
-    <br><br>
-    <button onclick="closeUpdates()">Später</button>
-  `;
+  // ================= INSTALL =================
+  installUpdate(version) {
+    try {
+      localStorage.setItem("rrt_version", version);
+    } catch {}
 
-  updates.style.display="block";
-  updates.classList.add("show");
-}
+    this.updateOpen = false;
+    this.updateLocked = false;
 
-function installUpdate(version){
-  localStorage.setItem("rrt_version", version);
+    const log = document.getElementById("log");
+    if (log) log.innerHTML = "<h2>✔ INSTALLIERT...</h2>";
 
-  log.innerHTML = "<h3>✔ Update installiert!</h3>";
+    setTimeout(() => location.reload(), 800);
+  }
 
-  setTimeout(()=>{
+  // ================= CLOSE =================
+  closeUpdates() {
+    if (this.updateLocked) return;
+
+    const updates = document.getElementById("updates");
+    if (!updates) return;
+
     updates.classList.remove("show");
-    updates.style.display="none";
-  },1200);
+    updates.style.display = "none";
+
+    this.updateOpen = false;
+  }
 }
 
-// 🔥 WICHTIG: nur im Menü + sofort beim Start
-function startUpdateSystem(){
-  checkForUpdates();
-
-  setInterval(()=>{
-    if(state==="menu"){
-      checkForUpdates();
-    }
-  },10000);
-}
-
-startUpdateSystem();
+// ================= START =================
+const updateManager = new UpdateManager();
 
 /* ================= SAVE SYSTEM ================= */
 function saveGame(){
