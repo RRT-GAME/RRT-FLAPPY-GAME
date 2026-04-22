@@ -118,9 +118,16 @@ async function checkForUpdates(){
     const data = await res.json();
     if(!data.version) return;
 
+    // 👉 WICHTIG: fallback auf CURRENT_VERSION
     let savedVersion = localStorage.getItem("rrt_version") || CURRENT_VERSION;
 
     console.log("Local:", savedVersion, "Remote:", data.version);
+
+    // 👉 FIX: Wenn LocalStorage kaputt → reset
+    if(!savedVersion.match(/^\d+\.\d+\.\d+$/)){
+      savedVersion = CURRENT_VERSION;
+      localStorage.setItem("rrt_version", CURRENT_VERSION);
+    }
 
     if(!isNewerVersion(data.version, savedVersion)) return;
     if(updateShown) return;
@@ -137,7 +144,7 @@ function showUpdatePopup(data){
 
   let notesHTML = "<p>Keine Infos</p>";
 
-  if(Array.isArray(data.patchNotes)){
+  if(Array.isArray(data.patchNotes) && data.patchNotes.length){
     notesHTML = "<ul>" + data.patchNotes.map(n=>`<li>${n}</li>`).join("") + "</ul>";
   }
 
@@ -165,12 +172,19 @@ function installUpdate(version){
   },1200);
 }
 
-// Nur im Menü checken (kein Spam im Game)
-setInterval(()=>{
-  if(state==="menu") checkForUpdates();
-},10000);
+// 🔥 WICHTIG: nur im Menü + sofort beim Start
+function startUpdateSystem(){
+  checkForUpdates();
 
-checkForUpdates();
+  setInterval(()=>{
+    if(state==="menu"){
+      checkForUpdates();
+    }
+  },10000);
+}
+
+startUpdateSystem();
+
 /* ================= SAVE SYSTEM ================= */
 function saveGame(){
   const data = {
@@ -487,4 +501,4 @@ loadGame();
 updateUI();
 </script>
 </body>
-</html>gut
+</html>
