@@ -424,8 +424,13 @@ skinsTab.style.display=t==="skins"?"block":"none";
 upgradesTab.style.display=t==="upgrades"?"block":"none";
 }
 
-function renderLog(){
-  log.innerHTML = "";
+function openUpdates(){
+  updates.style.display="block";
+  updates.classList.add("show");
+
+  updateManager.checkForUpdates();
+}
+}
 }
 
 function renderShop(){
