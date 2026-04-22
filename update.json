@@ -1,5 +1,5 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "patchNotes": [
     "🔥 Update System verbessert",
     "🔥 Kein Auto-Reload mehr",
@@ -7,5 +7,5 @@
     "🔥 Bugfix: LocalStorage Crash verhindert",
     "🔥 Update Popup jetzt sauber im Menü"
   ],
-  "message": "Neues Update verfügbar!"
+  "message": " TEST Neues Update verfügbar!"
 }
