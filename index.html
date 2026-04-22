@@ -119,8 +119,13 @@ async function checkForUpdates(){
     if(!data.version) return;
 
     // 👉 WICHTIG: fallback auf CURRENT_VERSION
-    let savedVersion = localStorage.getItem("rrt_version") || CURRENT_VERSION;
+    
+let savedVersion = localStorage.getItem("rrt_version");
 
+if(!savedVersion){
+  savedVersion = CURRENT_VERSION;
+  localStorage.setItem("rrt_version", CURRENT_VERSION);
+}
     console.log("Local:", savedVersion, "Remote:", data.version);
 
     // 👉 FIX: Wenn LocalStorage kaputt → reset
