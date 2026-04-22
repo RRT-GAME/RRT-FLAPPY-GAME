@@ -414,22 +414,32 @@ function startGame(){reset();state="game";menu.style.display="none";dead.style.d
 function backMenu(){state="menu";menu.style.display="block";dead.style.display="none";updateUI();saveGame();}
 
 // SHOP
-function openShop(){shop.style.display="block";shop.classList.add("show");renderShop();}
-function closeShop(){shop.style.display="none";shop.classList.remove("show");saveGame();}
-
-function tab(t){function openUpdates(){
-  updates.style.display="block";
-  updates.classList.add("show");
+function openShop(){
+  shop.style.display="block";
+  shop.classList.add("show");
+  renderShop();
 }
 
-function closeUpdates(){
-  updates.style.display="none";
-  updates.classList.remove("show");
-}
-skinsTab.style.display=t==="skins"?"block":"none";
-upgradesTab.style.display=t==="upgrades"?"block":"none";
+function closeShop(){
+  shop.style.display="none";
+  shop.classList.remove("show");
+  saveGame();
 }
 
+function tab(t){
+  const isSkins = t === "skins";
+
+  skinsTab.style.display = isSkins ? "block" : "none";
+  upgradesTab.style.display = isSkins ? "none" : "block";
+
+  // safer tab system (nur im shop suchen)
+  const tabs = shop.querySelectorAll(".tab");
+
+  if(tabs.length >= 2){
+    tabs[0].classList.toggle("active", isSkins);
+    tabs[1].classList.toggle("active", !isSkins);
+  }
+}
 
 function renderShop(){
 let html="";
