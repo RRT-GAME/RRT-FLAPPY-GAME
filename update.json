@@ -1,11 +1,11 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "patchNotes": [
     "🔥 Update System verbessert",
     "🔥 Kein Auto-Reload mehr",
-    "🔥 Stabilere Versionserkennung (1.0.1 → 1.0.2 korrekt)",
-    "🔥 Bugfix: LocalStorage Crash verhindert",
+    "🔥 Stabilere Versionserkennung (1.0.4 → 1.0.5 korrekt)",
+    "🔥 Bugfix: LocalStorage Crash verhindert update anzeige gefixt",
     "🔥 Update Popup jetzt sauber im Menü"
   ],
-  "message": " TEST Neues Update verfügbar!"
+  "message": "Neues Update verfügbar!"
 }
