@@ -230,12 +230,6 @@ skinsTab.style.display=t==="skins"?"block":"none";
 upgradesTab.style.display=t==="upgrades"?"block":"none";
 }
 
-  log.innerHTML = data
-    .reverse()
-    .map(u => `• <b>${u.version}</b> - ${u.text}`)
-    .join("<br>");
-}
-
 function renderShop(){
 let html="";
 for(let k in skins){
