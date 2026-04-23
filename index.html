@@ -185,13 +185,16 @@ function closeShop(){shop.style.display="none";shop.classList.remove("show");sav
 
 async function openUpdates(){
   updates.style.display="block";
-  updates.classList.add("show");
+
+  // sauberer Animation-Start
+  requestAnimationFrame(()=>{
+    updates.classList.add("show");
+  });
 
   log.innerHTML = "Loading...";
 
   try {
     const res = await fetch("update.json?t=" + Date.now());
-
     if(!res.ok) throw new Error("HTTP " + res.status);
 
     const data = await res.json();
@@ -209,12 +212,13 @@ async function openUpdates(){
       }));
     }
 
-    if(list.length === 0){
+    if(!list.length){
       log.innerHTML = "No updates found";
       return;
     }
 
     log.innerHTML = list
+      .slice() // verhindert Mutieren vom Original
       .reverse()
       .map(u => `• <b>${u.version ?? "?"}</b> - ${u.text ?? ""}`)
       .join("<br>");
@@ -230,7 +234,7 @@ function closeUpdates(){
 
   setTimeout(()=>{
     updates.style.display="none";
-  }, 150);
+  }, 200);
 }
   
 function tab(t){
