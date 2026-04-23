@@ -88,241 +88,7 @@ let bird,pipes=[];
 let score=0,coins=0,best=0;
 let frame=0;
 
-/* ================= RRT UPDATE SYSTEM (FIXED FINAL v2) ================= */
-
-const CURRENT_VERSION = "1.0.0";
-
-class UpdateManager {
-  constructor() {
-    this.updateOpen = false;
-    this.updateLocked = false;
-    this.updateChecking = false;
-
-    this.interval = null;
-    this.audioCtx = null;
-
-    this.init();
-  }
-
-  // ================= INIT =================
-  init() {
-    this.checkForUpdates();
-    this.startInterval();
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
-        this.checkForUpdates();
-      }
-    });
-
-    // ensure cleanup
-    window.addEventListener("beforeunload", () => this.destroy());
-  }
-
-  startInterval() {
-    this.interval = setInterval(() => {
-      if (window.state === "menu") {
-        this.checkForUpdates();
-      }
-    }, 15000);
-  }
-
-  destroy() {
-    if (this.interval) clearInterval(this.interval);
-    this.interval = null;
-  }
-
-  // ================= VERSION =================
-  isNewerVersion(remote = "0.0.0", local = "0.0.0") {
-    const parse = v => v.split(".").map(x => parseInt(x, 10) || 0);
-
-    const a = parse(remote);
-    const b = parse(local);
-
-    for (let i = 0; i < 3; i++) {
-      if (a[i] > b[i]) return true;
-      if (a[i] < b[i]) return false;
-    }
-    return false;
-  }
-
-  getSavedVersion() {
-    try {
-      let v = localStorage.getItem("rrt_version");
-
-      if (!v || !/^\d+\.\d+\.\d+$/.test(v)) {
-        localStorage.setItem("rrt_version", CURRENT_VERSION);
-        return CURRENT_VERSION;
-      }
-
-      return v;
-    } catch {
-      return CURRENT_VERSION;
-    }
-  }
-
-  // ================= SOUND =================
-  playUpdateSound() {
-    try {
-      if (!this.audioCtx) {
-        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-
-      const ctx = this.audioCtx;
-      if (ctx.state === "suspended") ctx.resume();
-
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-
-      o.type = "sine";
-      o.frequency.value = 660;
-      g.gain.value = 0.08;
-
-      o.connect(g);
-      g.connect(ctx.destination);
-
-      o.start();
-      o.stop(ctx.currentTime + 0.15);
-    } catch {}
-  }
-
-  // ================= UI =================
-  showUpdateUI(data) {
-    if (this.updateOpen) return;
-
-    const updates = document.getElementById("updates");
-    const log = document.getElementById("log");
-
-    if (!updates || !log || !data) return;
-
-    this.updateOpen = true;
-
-    const container = document.createElement("div");
-    container.style.textAlign = "center";
-
-    const title = document.createElement("h2");
-    title.textContent = `🔥 UPDATE ${data.version}`;
-
-    const subtitle = document.createElement("p");
-    subtitle.textContent = "Neue Version verfügbar";
-    subtitle.style.fontWeight = "bold";
-
-    const listTitle = document.createElement("h3");
-    listTitle.textContent = "Patch Notes";
-
-    const ul = document.createElement("ul");
-
-    if (Array.isArray(data.patchNotes) && data.patchNotes.length) {
-      data.patchNotes.forEach(note => {
-        const li = document.createElement("li");
-        li.textContent = note;
-        ul.appendChild(li);
-      });
-    } else {
-      const li = document.createElement("li");
-      li.textContent = "Keine Patch Notes";
-      ul.appendChild(li);
-    }
-
-    const installBtn = document.createElement("button");
-    installBtn.textContent = "⬇ UPDATE INSTALLIEREN";
-    installBtn.addEventListener("click", () => this.installUpdate(data.version));
-
-    container.appendChild(title);
-    container.appendChild(subtitle);
-    container.appendChild(listTitle);
-    container.appendChild(ul);
-    container.appendChild(document.createElement("br"));
-    container.appendChild(installBtn);
-
-    if (data.forceUpdate) {
-      const warn = document.createElement("p");
-      warn.textContent = "⚠ FORCE UPDATE REQUIRED";
-      warn.style.color = "red";
-      warn.style.fontWeight = "bold";
-      container.appendChild(warn);
-
-      this.updateLocked = true;
-    } else {
-      const closeBtn = document.createElement("button");
-      closeBtn.textContent = "SPÄTER";
-      closeBtn.addEventListener("click", () => this.closeUpdates());
-      container.appendChild(document.createElement("br"));
-      container.appendChild(document.createElement("br"));
-      container.appendChild(closeBtn);
-    }
-
-    log.innerHTML = "";
-    log.appendChild(container);
-
-    updates.style.display = "block";
-    updates.classList.add("show");
-
-    this.playUpdateSound();
-  }
-
-  // ================= CHECK =================
-  async checkForUpdates() {
-    if (this.updateChecking || this.updateLocked || this.updateOpen) return;
-
-    this.updateChecking = true;
-
-    try {
-      const res = await fetch("update.json?nocache=" + Date.now(), {
-        cache: "no-store"
-      });
-
-      if (!res.ok) return;
-
-      const data = await res.json();
-      if (!data?.version) return;
-
-      const local = this.getSavedVersion();
-
-      if (!this.isNewerVersion(data.version, local)) return;
-
-      this.showUpdateUI(data);
-
-    } catch (e) {
-      console.log("Update error:", e);
-    } finally {
-      this.updateChecking = false;
-    }
-  }
-
-  // ================= INSTALL =================
-  installUpdate(version) {
-    try {
-      localStorage.setItem("rrt_version", version);
-    } catch {}
-
-    this.updateOpen = false;
-    this.updateLocked = false;
-
-    const log = document.getElementById("log");
-    if (log) log.innerHTML = "<h2>✔ INSTALLIERT...</h2>";
-
-    setTimeout(() => location.reload(), 800);
-  }
-
-  // ================= CLOSE =================
-  closeUpdates() {
-    if (this.updateLocked) return;
-
-    const updates = document.getElementById("updates");
-    if (!updates) return;
-
-    updates.classList.remove("show");
-    updates.style.display = "none";
-
-    this.updateOpen = false;
-  }
-}
-
-// ================= START =================
-const updateManager = new UpdateManager();
-
-/* ================= SAVE SYSTEM ================= */
+// ================= SAVE SYSTEM =================
 function saveGame(){
   const data = {
     coins,
@@ -414,31 +180,24 @@ function startGame(){reset();state="game";menu.style.display="none";dead.style.d
 function backMenu(){state="menu";menu.style.display="block";dead.style.display="none";updateUI();saveGame();}
 
 // SHOP
-function openShop(){
-  shop.style.display="block";
-  shop.classList.add("show");
-  renderShop();
-}
-
-function closeShop(){
-  shop.style.display="none";
-  shop.classList.remove("show");
-  saveGame();
-}
+function openShop(){shop.style.display="block";shop.classList.add("show");renderShop();}
+function closeShop(){shop.style.display="none";shop.classList.remove("show");saveGame();}
+function openUpdates(){updates.style.display="block";updates.classList.add("show");renderLog();}
+function closeUpdates(){updates.style.display="none";updates.classList.remove("show");}
 
 function tab(t){
-  const isSkins = t === "skins";
+skinsTab.style.display=t==="skins"?"block":"none";
+upgradesTab.style.display=t==="upgrades"?"block":"none";
+}
 
-  skinsTab.style.display = isSkins ? "block" : "none";
-  upgradesTab.style.display = isSkins ? "none" : "block";
+async function renderLog(){
+  const res = await fetch("updates.json?t=" + Date.now());
+  const data = await res.json();
 
-  // safer tab system (nur im shop suchen)
-  const tabs = shop.querySelectorAll(".tab");
-
-  if(tabs.length >= 2){
-    tabs[0].classList.toggle("active", isSkins);
-    tabs[1].classList.toggle("active", !isSkins);
-  }
+  log.innerHTML = data
+    .reverse()
+    .map(u => `• <b>${u.version}</b> - ${u.text}`)
+    .join("<br>");
 }
 
 function renderShop(){
@@ -651,4 +410,4 @@ loadGame();
 updateUI();
 </script>
 </body>
-</html>
+</html>  alles klappt aber update button zeigt immer audio plus nochwas das überschreibt mein uüdate system
