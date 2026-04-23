@@ -230,10 +230,6 @@ skinsTab.style.display=t==="skins"?"block":"none";
 upgradesTab.style.display=t==="upgrades"?"block":"none";
 }
 
-async function renderLog(){
-  const res = await fetch("updates.json?t=" + Date.now());
-  const data = await res.json();
-
   log.innerHTML = data
     .reverse()
     .map(u => `• <b>${u.version}</b> - ${u.text}`)
