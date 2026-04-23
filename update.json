@@ -1,11 +1,11 @@
 {
-  "version": "1.0.5",
+  "version": "1.0.6",
   "patchNotes": [
     "🔥 Update System verbessert",
     "🔥 Kein Auto-Reload mehr",
-    "🔥 Stabilere Versionserkennung (1.0.4 → 1.0.5 korrekt)",
+    "🔥 Stabilere Versionserkennung (1.0.5 → 1.0.6 korrekt)",
     "🔥 Bugfix: LocalStorage Crash verhindert update anzeige gefixt",
-    "🔥 Update Popup jetzt sauber im Menü"
+    "🔥 Update Popup jetzt sauber im Menü spiel founktion wieder da"
   ],
-  "message": "Neues UUpdate verfügbar!"
+  "message": "spiel war beschädigt fixes kommen!"
 }
