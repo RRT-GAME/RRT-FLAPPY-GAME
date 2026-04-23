@@ -182,8 +182,48 @@ function backMenu(){state="menu";menu.style.display="block";dead.style.display="
 // SHOP
 function openShop(){shop.style.display="block";shop.classList.add("show");renderShop();}
 function closeShop(){shop.style.display="none";shop.classList.remove("show");saveGame();}
-function openUpdates(){updates.style.display="block";updates.classList.add("show");renderLog();}
-function closeUpdates(){updates.style.display="none";updates.classList.remove("show");}
+
+async function openUpdates(){
+  updates.style.display="block";
+  updates.classList.add("show");
+
+  log.innerHTML = "Loading...";
+
+  try {
+    const res = await fetch("update.json?t=" + Date.now());
+
+    if(!res.ok) throw new Error("HTTP " + res.status);
+
+    const data = await res.json();
+
+    let list = [];
+
+    if(Array.isArray(data)){
+      list = data;
+    } else if(data.updates){
+      list = data.updates;
+    } else {
+      list = Object.entries(data).map(([version, text]) => ({
+        version,
+        text
+      }));
+    }
+
+    if(list.length === 0){
+      log.innerHTML = "No updates found";
+      return;
+    }
+
+    log.innerHTML = list
+      .reverse()
+      .map(u => `• <b>${u.version ?? "?"}</b> - ${u.text ?? ""}`)
+      .join("<br>");
+
+  } catch (err) {
+    log.innerHTML = "❌ Failed to load updates";
+    console.error(err);
+  }
+}
 
 function tab(t){
 skinsTab.style.display=t==="skins"?"block":"none";
@@ -410,4 +450,4 @@ loadGame();
 updateUI();
 </script>
 </body>
-</html>  alles klappt aber update button zeigt immer audio plus nochwas das überschreibt mein uüdate system
+</html>
