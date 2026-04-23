@@ -225,6 +225,14 @@ async function openUpdates(){
   }
 }
 
+function closeUpdates(){
+  updates.classList.remove("show");
+
+  setTimeout(()=>{
+    updates.style.display="none";
+  }, 150);
+}
+  
 function tab(t){
 skinsTab.style.display=t==="skins"?"block":"none";
 upgradesTab.style.display=t==="upgrades"?"block":"none";
