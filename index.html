@@ -2,26 +2,61 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>RRT FLAPPY</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#70c5ce;overflow:hidden;}
-canvas{display:block;margin:auto;}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#000;
+  overflow:hidden;
+  width:100%;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+canvas{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:100vh;
+  max-width:calc(100vh * 400 / 600);
+}
 
-#ui{position:absolute;width:400px;left:0;right:0;margin:auto;text-align:center;}
+#ui{
+  position:absolute;
+  width:100%;
+  height:100vh;
+  top:0;left:0;
+  text-align:center;
+  z-index:5;
+  pointer-events:none;
+}
+#menu, #dead{
+  pointer-events:auto;
+  padding-top:20vh;
+  color:white;
+  text-shadow:2px 2px 4px #000;
+}
 
 .panel{
-position:absolute;width:400px;height:600px;
-left:0;right:0;margin:auto;
-background:#111;color:white;
-display:none;
-overflow-y:auto;
-z-index:10;
-opacity:0;
-transform:scale(0.9);
-transition:0.2s;
+  position:absolute;
+  width:100%;
+  max-width:500px;
+  height:100vh;
+  top:0;left:50%;
+  transform:translateX(-50%) scale(0.9);
+  background:#111;color:white;
+  display:none;
+  overflow-y:auto;
+  z-index:10;
+  opacity:0;
+  transition:0.2s;
+  pointer-events:auto;
 }
-.panel.show{opacity:1;transform:scale(1);}
+.panel.show{opacity:1;transform:translateX(-50%) scale(1);}
 
 .tabs{display:flex;}
 .tab{flex:1;padding:10px;background:#222;cursor:pointer;}
@@ -29,6 +64,19 @@ transition:0.2s;
 
 .shopItem{background:#222;margin:10px;padding:10px;border-radius:10px;}
 .preview{width:100px;height:50px;background:#000;margin:auto;}
+
+button{
+  padding:12px 24px;
+  margin:5px;
+  font-size:18px;
+  cursor:pointer;
+  border:none;
+  border-radius:8px;
+  background:#ff9500;
+  color:white;
+  font-weight:bold;
+}
+button:active{transform:scale(0.95);}
 </style>
 </head>
 
@@ -88,7 +136,7 @@ let bird,pipes=[];
 let score=0,coins=0,best=0;
 let frame=0;
 
-// SAVE SYSTEM 
+// SAVE SYSTEM
   function saveGame(){
   const data = {
     coins,
@@ -103,9 +151,9 @@ function loadGame(){
   const data = JSON.parse(localStorage.getItem("rrt_flappy_save"));
   if(!data) return;
 
-  coins = data.coins ?? 0;
-  best = data.best ?? 0;
-  currentSkin = data.currentSkin ?? "default";
+  coins = data.coins?? 0;
+  best = data.best?? 0;
+  currentSkin = data.currentSkin?? "default";
 
   if(data.skins){
     for(let k in data.skins){
@@ -186,7 +234,6 @@ function closeShop(){shop.style.display="none";shop.classList.remove("show");sav
 async function openUpdates(){
   updates.style.display="block";
 
-  // Animation-Start
   requestAnimationFrame(()=>{
     updates.classList.add("show");
   });
@@ -218,10 +265,10 @@ async function openUpdates(){
     }
 
     log.innerHTML = list
-      .slice() // verhindert Mutieren vom Original
-      .reverse()
-      .map(u => `• <b>${u.version ?? "?"}</b> - ${u.text ?? ""}`)
-      .join("<br>");
+    .slice()
+    .reverse()
+    .map(u => `• <b>${u.version?? "?"}</b> - ${u.text?? ""}`)
+    .join("<br>");
 
   } catch (err) {
     log.innerHTML = "❌ Failed to load updates";
@@ -236,7 +283,7 @@ function closeUpdates(){
     updates.style.display="none";
   }, 200);
 }
-  
+
 function tab(t){
 skinsTab.style.display=t==="skins"?"block":"none";
 upgradesTab.style.display=t==="upgrades"?"block":"none";
@@ -319,8 +366,14 @@ loop();
 
 // INPUT
 document.addEventListener("keydown",e=>{if(e.code==="Space")jump();});
+c.addEventListener("touchstart",e=>{e.preventDefault();jump();});
 c.addEventListener("click",()=>jump());
-function jump(){bird.vel=-6;beep(520);spawnParticle(bird.x,bird.y);}
+function jump(){
+  if(state!=="game")return;
+  bird.vel=-6;
+  beep(520);
+  spawnParticle(bird.x,bird.y);
+}
 
 // DIFFICULTY
 let pipeGap=150;
@@ -354,7 +407,7 @@ beep(700);
 if(bird.x<p.x+70&&bird.x+20>p.x&&(bird.y<p.top||bird.y>p.top+pipeGap))die();
 }
 
-if(bird.y>520)die();
+if(bird.y>520||bird.y<0)die();
 }
 
 function die(){
@@ -434,9 +487,10 @@ ctx.fillRect(p.x,p.top+pipeGap,70,600);
 }
 
 ctx.fillStyle="black";
-ctx.fillText("Score:"+score,10,20);
-ctx.fillText("Coins:"+coins,10,40);
-ctx.fillText("Best:"+best,10,60);
+ctx.font="20px Arial";
+ctx.fillText("Score:"+score,10,30);
+ctx.fillText("Coins:"+coins,10,55);
+ctx.fillText("Best:"+best,10,80);
 }
 }
 
