@@ -88,8 +88,8 @@ let bird,pipes=[];
 let score=0,coins=0,best=0;
 let frame=0;
 
-// ================= SAVE SYSTEM =================
-function saveGame(){
+// SAVE SYSTEM 
+  function saveGame(){
   const data = {
     coins,
     best,
@@ -186,7 +186,7 @@ function closeShop(){shop.style.display="none";shop.classList.remove("show");sav
 async function openUpdates(){
   updates.style.display="block";
 
-  // sauberer Animation-Start
+  // Animation-Start
   requestAnimationFrame(()=>{
     updates.classList.add("show");
   });
