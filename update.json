@@ -1,11 +1,11 @@
 {
   "version": "1.0.7",
   "patchNotes": [
-    "🔥 Update System verbessert",
-    "🔥 full screan on mobil",
-    "🔥 Stabilere Versionserkennung (1.0.6 → 1.0.7 korrekt)",
-    "🔥 Bugfix: LocalStorage Crash verhindert update anzeige gefixt",
-    "🔥 Update Popup jetzt sauber im Menü spiel founktion wieder da"
+    "🔥 Improved update system",
+    "🔥 Fullscreen on mobile",
+    "🔥 More stable version detection (1.0.6 → 1.0.7 correctly)",
+    "🔥 Bugfix: Fixed LocalStorage crash preventing update display",
+    "🔥 Update popup now shows cleanly in menu, game functionality restored"
   ],
-  "message": "viel spass next update one week"
+  "message": "Have fun, next update in one week"
 }
