@@ -41,7 +41,7 @@ canvas{
   z-index:5;
   pointer-events:none;
 }
-#menu, #dead{
+#menu, #dead, button{
   pointer-events:auto;
   padding-top:20vh;
   color:white;
@@ -84,6 +84,7 @@ button{
   font-weight:bold;
 }
 button:active{transform:scale(0.95);}
+button:disabled{background:#555;cursor:not-allowed;}
 </style>
 </head>
 
@@ -112,7 +113,14 @@ button:active{transform:scale(0.95);}
 <div class="tab" onclick="tab('upgrades')">UPGRADES</div>
 </div>
 <div id="skinsTab"></div>
-<div id="upgradesTab" style="display:none;"></div>
+<div id="upgradesTab" style="display:none;">
+  <div class='shopItem'>
+    🛡️ SHIELD<br>
+    Price: 50<br>
+    Survive 1x crash<br>
+    <button id="shieldBtn" onclick="buyShield()">BUY 50</button>
+  </div>
+</div>
 <button onclick="closeShop()">BACK</button>
 </div>
 
@@ -125,6 +133,7 @@ button:active{transform:scale(0.95);}
 <canvas id="game" width="400" height="600"></canvas>
 
 <script>
+const GAME_VERSION = "1.0.7";
 const c=document.getElementById("game");
 const ctx=c.getContext("2d");
 
@@ -136,20 +145,23 @@ const log=document.getElementById("log");
 const coinsUI=document.getElementById("coinsUI");
 const bestUI=document.getElementById("bestUI");
 const skinsTab=document.getElementById("skinsTab");
-const upgradesTab=document.getElementById("upgradesTab");
 
 let state="menu";
 let bird,pipes=[];
 let score=0,coins=0,best=0;
 let frame=0;
+let hasShield = false;
+let shieldEquipped = false;
 
 // SAVE SYSTEM
-  function saveGame(){
+function saveGame(){
   const data = {
     coins,
     best,
     skins,
-    currentSkin
+    currentSkin,
+    hasShield,
+    shieldEquipped
   };
   localStorage.setItem("rrt_flappy_save", JSON.stringify(data));
 }
@@ -161,6 +173,8 @@ function loadGame(){
   coins = data.coins?? 0;
   best = data.best?? 0;
   currentSkin = data.currentSkin?? "default";
+  hasShield = data.hasShield?? false;
+  shieldEquipped = data.shieldEquipped?? false;
 
   if(data.skins){
     for(let k in data.skins){
@@ -170,6 +184,26 @@ function loadGame(){
     }
   }
 }
+
+// UPDATE CHECK
+async function checkUpdate(){
+  try{
+    const res = await fetch("update.json?t=" + Date.now());
+    const data = await res.json();
+    const lastSeen = localStorage.getItem("rrt_version_seen");
+
+    if(data.version!== GAME_VERSION && data.version!== lastSeen){
+      if(confirm(`🔥 UPDATE ${data.version} available!\n\n${data.message}\n\nUpdate now?`)){
+        localStorage.setItem("rrt_version_seen", data.version);
+        location.reload();
+      }
+    }
+  }catch(e){}
+}
+
+setInterval(() => {
+  if(state === "game" || state === "menu") checkUpdate();
+}, 30000);
 
 // SOUND
 const AC=window.AudioContext||window.webkitAudioContext;
@@ -230,17 +264,16 @@ particles.push({x,y,vx:(Math.random()-0.5)*2,vy:(Math.random()-0.5)*2,life:30});
 }
 
 // GAME
-function reset(){bird={x:100,y:300,vel:0,angle:0};pipes=[];score=0;}
+function reset(){bird={x:100,y:300,vel:0,angle:0,invincible:0};pipes=[];score=0;}
 function startGame(){reset();state="game";menu.style.display="none";dead.style.display="none";}
 function backMenu(){state="menu";menu.style.display="block";dead.style.display="none";updateUI();saveGame();}
 
 // SHOP
-function openShop(){shop.style.display="block";shop.classList.add("show");renderShop();}
+function openShop(){shop.style.display="block";shop.classList.add("show");renderShop();renderShieldBtn();}
 function closeShop(){shop.style.display="none";shop.classList.remove("show");saveGame();}
 
 async function openUpdates(){
   updates.style.display="block";
-
   requestAnimationFrame(()=>{
     updates.classList.add("show");
   });
@@ -253,30 +286,12 @@ async function openUpdates(){
 
     const data = await res.json();
 
-    let list = [];
-
-    if(Array.isArray(data)){
-      list = data;
-    } else if(data.updates){
-      list = data.updates;
-    } else {
-      list = Object.entries(data).map(([version, text]) => ({
-        version,
-        text
-      }));
-    }
-
-    if(!list.length){
-      log.innerHTML = "No updates found";
+    if(data.patchNotes){
+      log.innerHTML = `<b>Version ${data.version}</b><br><br>` + data.patchNotes.map(t => `• ${t}`).join("<br>");
       return;
     }
 
-    log.innerHTML = list
-    .slice()
-    .reverse()
-    .map(u => `• <b>${u.version?? "?"}</b> - ${u.text?? ""}`)
-    .join("<br>");
-
+    log.innerHTML = "No updates found";
   } catch (err) {
     log.innerHTML = "❌ Failed to load updates";
     console.error(err);
@@ -285,7 +300,6 @@ async function openUpdates(){
 
 function closeUpdates(){
   updates.classList.remove("show");
-
   setTimeout(()=>{
     updates.style.display="none";
   }, 200);
@@ -294,17 +308,30 @@ function closeUpdates(){
 function tab(t){
 skinsTab.style.display=t==="skins"?"block":"none";
 upgradesTab.style.display=t==="upgrades"?"block":"none";
+document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+event.target.classList.add('active');
 }
 
 function renderShop(){
 let html="";
 for(let k in skins){
 let s=skins[k];
-html+=`<div class='shopItem'>${k}<br>Price:${s.price}<br><canvas id='p_${k}' width='100' height='50' class='preview'></canvas><br>${s.owned?`<button onclick="equip('${k}')">EQUIP</button>`:`<button onclick="buySkin('${k}')">BUY</button>`}</div>`;
+let btnTxt = "BUY";
+let btnDisabled = "";
+
+if(s.owned){
+  if(currentSkin === k){
+    btnTxt = "EQUIPPED";
+    btnDisabled = "disabled";
+  } else {
+    btnTxt = "EQUIP";
+  }
+}
+
+html+=`<div class='shopItem'>${k}<br>Price:${s.price}<br><canvas id='p_${k}' width='100' height='50' class='preview'></canvas><br><button onclick="${s.owned?`equip('${k}')`:`buySkin('${k}')`}" ${btnDisabled}>${btnTxt}</button></div>`;
 }
 skinsTab.innerHTML=html;
 for(let k in skins) drawPreview(k);
-upgradesTab.innerHTML="No upgrades";
 }
 
 function buySkin(k){
@@ -316,9 +343,46 @@ currentSkin=k;
 updateUI();
 renderShop();
 saveGame();
+beep(800);
 }
 }
-function equip(k){currentSkin=k;renderShop();saveGame();}
+function equip(k){currentSkin=k;renderShop();saveGame();beep(600);}
+
+// SHIELD SYSTEM
+function buyShield(){
+  if(coins >= 50 &&!hasShield){
+    coins -= 50;
+    hasShield = true;
+    shieldEquipped = true;
+    updateUI();
+    renderShieldBtn();
+    saveGame();
+    beep(800);
+  }
+}
+
+function renderShieldBtn(){
+  const btn = document.getElementById("shieldBtn");
+  if(!btn) return;
+
+  if(!hasShield){
+    btn.innerText = "BUY 50";
+    btn.disabled = false;
+    btn.onclick = buyShield;
+  } else if(shieldEquipped){
+    btn.innerText = "EQUIPPED";
+    btn.disabled = true;
+  } else {
+    btn.innerText = "EQUIP";
+    btn.disabled = false;
+    btn.onclick = () => {
+      shieldEquipped = true;
+      renderShieldBtn();
+      saveGame();
+      beep(600);
+    }
+  }
+}
 
 // PREVIEW
 function drawPreview(k){
@@ -397,6 +461,8 @@ bird.vel+=0.35;
 bird.y+=bird.vel;
 bird.angle=bird.vel*0.08;
 
+if(bird.invincible > 0) bird.invincible--;
+
 if(frame%90===0){
 pipes.push({x:400,top:100+Math.random()*250,passed:false});
 }
@@ -411,19 +477,33 @@ coins++;
 beep(700);
 }
 
-if(bird.x<p.x+70&&bird.x+20>p.x&&(bird.y<p.top||bird.y>p.top+pipeGap))die();
+if(bird.invincible <= 0){
+  if(bird.x<p.x+70&&bird.x+20>p.x&&(bird.y<p.top||bird.y>p.top+pipeGap))die();
+}
 }
 
 if(bird.y>520||bird.y<0)die();
 }
 
 function die(){
-state="dead";
-dead.style.display="block";
-if(score>best)best=score;
-beep(140);
-updateUI();
-saveGame();
+  if(shieldEquipped && hasShield){
+    hasShield = false;
+    shieldEquipped = false;
+    bird.y = 250;
+    bird.vel = -4;
+    bird.invincible = 60;
+    beep(900);
+    saveGame();
+    renderShieldBtn();
+    return;
+  }
+
+  state="dead";
+  dead.style.display="block";
+  if(score>best)best=score;
+  beep(140);
+  updateUI();
+  saveGame();
 }
 
 // DRAW
@@ -449,6 +529,16 @@ if(state==="game"||state==="dead"){
 ctx.save();
 ctx.translate(bird.x,bird.y);
 ctx.rotate(bird.angle);
+
+if(shieldEquipped && hasShield){
+  ctx.strokeStyle = bird.invincible > 0? "cyan" : "lime";
+  ctx.lineWidth = 3;
+  ctx.globalAlpha = bird.invincible > 0? 0.3 : 0.6;
+  ctx.beginPath();
+  ctx.arc(0,0,18,0,Math.PI*2);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
 
 let s=skins[currentSkin];
 ctx.fillStyle=s.color;
@@ -510,7 +600,9 @@ bestUI.innerText=best;
 
 // INIT
 loadGame();
+checkUpdate();
 updateUI();
+renderShieldBtn();
 </script>
 </body>
 </html>
