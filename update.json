@@ -1,12 +1,16 @@
 {
-  "version": "1.0.8",
+  "version": "1.1.0",
+  "message": "Hero Skins + Double Coins are live!",
   "patchNotes": [
-    "🛡️ NEW: Shield Upgrade in Shop",
-    "🛡️ Survive 1x crash for 50 coins",
-    "🔥 Auto Update Popup when new version drops",
-    "🔥 Shop buttons now show EQUIPPED when active",
-    "🔥 All shop text changed to English",
-    "🔥 Improved mobile performance"
-  ],
-  "message": "Shield is live! Grab it in the shop. Next update coming soon 🚀"
+    "💰💰 NEW: Double Coins Upgrade – 2x coins for one full run – 200 coins",
+    "🦸 NEW: 6 Hero Skins for 20 coins each",
+    "🕷️ Spider-Man – Red/Blue + web particles on jump",
+    "🦸 Superman – Blue/Red cape + S-Logo + red trail",
+    "🦇 Batman – Black + pointed eyes + dark smoke",
+    "🤖 Iron Man – Red/Gold + glowing eyes + gold sparks",
+    "⚡ Flash – Red/Yellow + speed lines + afterimage effect",
+    "🟠 Goku – Orange + Kanji + blue aura",
+    "✨ All heroes have unique wing animations",
+    "🐛 Bug Fix: Wings now display correctly"
+  ]
 }
