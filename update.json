@@ -1,11 +1,12 @@
 {
-  "version": "1.0.7",
+  "version": "1.0.8",
   "patchNotes": [
-    "🔥 Improved update system",
-    "🔥 Fullscreen on mobile",
-    "🔥 More stable version detection (1.0.6 → 1.0.7 correctly)",
-    "🔥 Bugfix: Fixed LocalStorage crash preventing update display",
-    "🔥 Update popup now shows cleanly in menu, game functionality restored"
+    "🛡️ NEW: Shield Upgrade in Shop",
+    "🛡️ Survive 1x crash for 50 coins",
+    "🔥 Auto Update Popup when new version drops",
+    "🔥 Shop buttons now show EQUIPPED when active",
+    "🔥 All shop text changed to English",
+    "🔥 Improved mobile performance"
   ],
-  "message": "Have fun, next update in one week"
+  "message": "Shield is live! Grab it in the shop. Next update coming soon 🚀"
 }
