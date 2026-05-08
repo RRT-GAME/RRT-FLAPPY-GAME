@@ -5,6 +5,90 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>RRT FLAPPY</title>
 
+<!-- Füge das in deine index.html vor </body> ein -->
+<script type="module">
+  // Importiere Firebase Funktionen
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // Deine Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBBRFz8drGGRp_kpUR5HiIisR6WYdFnqI4",
+    authDomain: "rrt-flappy-game.firebaseapp.com",
+    databaseURL: "https://rrt-flappy-game-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "rrt-flappy-game",
+    storageBucket: "rrt-flappy-game.firebasestorage.app",
+    messagingSenderId: "376438140987",
+    appId: "1:376438140987:web:15d964c26fa4a31ec4ec1e",
+    measurementId: "G-9JLKEFHMPR"
+  };
+
+  // Firebase initialisieren
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const provider = new GoogleAuthProvider();
+
+  // Login Funktion
+  document.getElementById('login-btn').addEventListener('click', () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        console.log("Eingeloggt als:", user.displayName);
+        // Speichere Spieler in DB
+        savePlayerToDB(user);
+      })
+      .catch((error) => {
+        console.error("Login Fehler:", error);
+      });
+  });
+
+  // Spieler in DB speichern
+  function savePlayerToDB(user) {
+    const playerRef = ref(db, 'players/' + user.uid);
+    set(playerRef, {
+      name: user.displayName,
+      email: user.email,
+      highscore: 0,
+      lastLogin: new Date().toISOString()
+    });
+  }
+
+  // Score speichern Funktion
+  function saveScore(score) {
+    const user = auth.currentUser;
+    if (user) {
+      const scoreRef = ref(db, 'players/' + user.uid + '/highscore');
+      get(scoreRef).then((snapshot) => {
+        const currentHighscore = snapshot.val() || 0;
+        if (score > currentHighscore) {
+          set(scoreRef, score);
+          console.log("Neuer Highscore:", score);
+        }
+      });
+    }
+  }
+
+  // Logout Funktion
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    signOut(auth)
+      .then(() => {
+        console.log("Ausgeloggt");
+      })
+      .catch((error) => {
+        console.error("Logout Fehler:", error);
+      });
+  });
+
+  // Beispiel: Score speichern wenn Spiel vorbei
+  // saveScore(123); // Ruf das auf wenn Spieler verloren hat
+</script>
+
+<!-- Füge diese Buttons in dein HTML ein wo du sie haben willst -->
+<button id="login-btn">Mit Google anmelden</button>
+<button id="logout-btn">Ausloggen</button>
+
 <!-- Privacy-friendly analytics by Plausible -->
 <script async src="https://plausible.io/js/pa-YcxLj2_9XuLoiVWJazzgA.js"></script>
 <script>
