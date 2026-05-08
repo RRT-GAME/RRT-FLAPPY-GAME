@@ -15,7 +15,7 @@
 <style>
 body{
   margin:0;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial;
+  font-family:Arial;
   background:#000;
   overflow:hidden;
   width:100%;
@@ -41,27 +41,11 @@ canvas{
   z-index:5;
   pointer-events:none;
 }
-#menu, #dead{
+#menu, #dead, button{
   pointer-events:auto;
+  padding-top:20vh;
   color:white;
   text-shadow:2px 2px 4px #000;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  gap:8px;
-  padding-top:12vh;
-  width:100%;
-  height:100%;
-  box-sizing:border-box;
-}
-#menu h2, #dead h3{
-  margin:0 0 10px 0;
-  font-size:28px;
-}
-#menu p{
-  margin:4px 0;
-  font-size:16px;
 }
 
 .panel{
@@ -78,17 +62,14 @@ canvas{
   opacity:0;
   transition:0.2s;
   pointer-events:auto;
-  text-align:center;
-  padding:20px;
-  box-sizing:border-box;
 }
 .panel.show{opacity:1;transform:translateX(-50%) scale(1);}
 
-.tabs{display:flex; width:100%;}
+.tabs{display:flex;}
 .tab{flex:1;padding:10px;background:#222;cursor:pointer;}
 .tab.active{background:orange;}
 
-.shopItem{background:#222;margin:10px auto;padding:10px;border-radius:10px;max-width:320px;}
+.shopItem{background:#222;margin:10px;padding:10px;border-radius:10px;}
 .preview{width:100px;height:50px;background:#000;margin:auto;}
 
 button{
@@ -101,97 +82,22 @@ button{
   background:#ff9500;
   color:white;
   font-weight:bold;
-  text-shadow:1px 1px 3px #000;
-  pointer-events:auto;
-  min-width:200px;
-  max-width:85%;
-  transition:transform .1s, filter .2s;
 }
-button:hover{filter:brightness(1.1)}
 button:active{transform:scale(0.95);}
 button:disabled{background:#555;cursor:not-allowed;}
-
-/* AUTH OVERLAY */
-#authOverlay{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:#050507;overflow:hidden}
-#authOverlay .bg{position:fixed;inset:0;background:radial-gradient(800px circle at 20% 20%,#ff950033,transparent 40%),radial-gradient(600px circle at 80% 80%,#0066ff33,transparent 40%),linear-gradient(180deg,#0a0a0f,#050507)}
-#authOverlay .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;animation:f 12s infinite ease-in-out}
-#authOverlay .o1{width:400px;height:400px;background:#ff9500;top:-100px;left:-100px}
-#authOverlay .o2{width:350px;height:350px;background:#0066ff;bottom:-80px;right:-80px;animation-delay:-6s}
-@keyframes f{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-20px)}}
-#authOverlay .card{position:relative;z-index:2;width:92%;max-width:380px;background:rgba(255,255,255,.06);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:32px;box-shadow:0 25px 80px #0009}
-#authOverlay .logo{font-size:32px;font-weight:800;background:linear-gradient(90deg,#ff9500,#ff5e00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;text-align:center}
-#authOverlay .sub{opacity:.7;font-size:14px;margin-bottom:24px;text-align:center;color:#fff}
-#authOverlay .tabs{display:flex;background:#0005;border-radius:14px;padding:4px;margin-bottom:22px}
-#authOverlay .tab{flex:1;padding:10px;text-align:center;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;opacity:.7;transition:.2s;color:#fff}
-#authOverlay .tab.active{background:#fff1;opacity:1}
-#authOverlay .input{width:100%;padding:14px 16px;margin:8px 0;background:#0006;border:1px solid #fff1;border-radius:12px;color:#fff;font-size:15px;outline:none;box-sizing:border-box}
-#authOverlay .input:focus{border-color:#ff9500;box-shadow:0 0 0 3px #ff950026}
-#authOverlay .btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;margin-top:12px;transition:.2s;min-width:unset;max-width:100%}
-#authOverlay .btn-p{background:linear-gradient(90deg,#ff9500,#ff6a00);color:#fff}
-#authOverlay .btn-p:hover{transform:translateY(-2px)}
-#authOverlay .btn-g{background:#fff;color:#111;display:flex;align-items:center;justify-content:center;gap:10px}
-#authOverlay .divider{display:flex;align-items:center;gap:10px;margin:18px 0;opacity:.5;font-size:12px;color:#fff}
-#authOverlay .divider::before,#authOverlay .divider::after{content:"";flex:1;height:1px;background:#fff2}
-#authOverlay .error{color:#ff5c5c;font-size:13px;min-height:18px;margin-top:8px;text-align:center}
-#authOverlay .hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<div id="authOverlay">
-  <div class="bg"><div class="orb o1"></div><div class="orb o2"></div></div>
-  <div class="card" id="authCard">
-    <div class="logo">RRT FLAPPY</div>
-    <div class="sub">Login oder Account erstellen</div>
-    <div class="tabs">
-      <div class="tab active" id="tLogin">Login</div>
-      <div class="tab" id="tSignup">Registrieren</div>
-    </div>
-    <div id="fLogin">
-      <input class="input" id="email1" type="email" placeholder="Email" autocomplete="email">
-      <input class="input" id="pass1" type="password" placeholder="Passwort" autocomplete="current-password">
-      <button class="btn btn-p" id="btnLogin">Einloggen</button>
-    </div>
-    <div id="fSignup" class="hidden">
-      <input class="input" id="email2" type="email" placeholder="Email" autocomplete="email">
-      <input class="input" id="pass2" type="password" placeholder="Passwort (min. 6)" autocomplete="new-password">
-      <button class="btn btn-p" id="btnSignup">Account erstellen</button>
-    </div>
-    <div class="divider"><span>ODER</span></div>
-    <button class="btn btn-g" id="btnGoogle">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.9 0 7.4 1.3 10.1 3.9l7.6-7.6C37.3 2.1 31 0 24 0 14.6 0 6.6 5.4 2.7 13.3l8.9 6.9C13.5 14.1 18.3 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.4c-.5 2.7-2.1 5-4.4 6.5l7 5.4c4.1-3.8 6.5-9.4 6.5-16z"/><path fill="#FBBC05" d="M11.6 20.2c-.6-1.8-.9-3.7-.9-5.7s.3-3.9.9-5.7L2.7 1.9C1 5.3 0 9 0 13c0 4 1 7.7 2.7 11.1l8.9-3.9z"/><path fill="#34A853" d="M24 48c6.5 0 12-2.1 16-5.8l-7-5.4c-2 1.3-4.5 2.1-9 2.1-5.7 0-10.5-3.8-12.2-9l-8.9 6.9C6.6 42.6 14.6 48 24 48z"/></svg>
-      Mit Google
-    </button>
-    <div style="text-align:center;margin-top:6px"><a id="forgotLink" style="color:#ff9500;font-size:13px;cursor:pointer">Passwort vergessen?</a></div>
-<div class="error" id="authErr"></div>
-<button class="btn" id="btnGuest" style="margin-top:12px;background:#222;color:#fff;border:1px solid #fff3">Als Gast spielen</button>
-  </div>
-</div>
-
-<div id="nameSetup" style="position:fixed;inset:0;z-index:1001;display:none;align-items:center;justify-content:center;background:#000d">
-  <div style="background:#111;padding:24px;border-radius:16px;width:90%;max-width:320px;color:#fff;text-align:center">
-    <h3>Wähle deinen Namen</h3>
-    <input id="nameInput" maxlength="16" placeholder="z.B. RRT" style="width:100%;padding:10px;margin:12px 0;border-radius:8px;border:1px solid #444;background:#000;color:#fff;box-sizing:border-box">
-    <button id="saveNameBtn" style="width:100%;padding:10px;background:#ff9500;border:none;border-radius:8px;color:#fff;font-weight:bold;min-width:unset">Speichern</button>
-  </div>
-</div>
-
-<div class="panel" id="leaderboard"><h2>BESTENLISTE</h2><div id="lbList" style="padding:10px"></div><button onclick="closeLB()">ZURÜCK</button></div>
-<div class="panel" id="settingsPanel"><h2>Einstellungen</h2><div id="settingsBody" style="padding:20px"></div><button onclick="closeSettings()">ZURÜCK</button></div>
-
 <div id="ui">
 <div id="menu">
 <h2>RRT-GAMES</h2>
-<p id="userInfo" style="opacity:.7;font-size:12px;margin:4px 0 10px"></p>
 <p>Coins: <span id="coinsUI">0</span></p>
 <p>Best: <span id="bestUI">0</span></p>
 <button onclick="startGame()">START</button>
 <button onclick="openShop()">SHOP</button>
-<button onclick="openLB()" id="lbBtn">BESTENLISTE</button>
 <button onclick="openUpdates()">UPDATES</button>
-<button onclick="openSettings()">EINSTELLUNG</button>
-<button onclick="logout()" style="background:#333">LOGOUT</button>
 </div>
 
 <div id="dead" style="display:none;">
@@ -203,8 +109,8 @@ button:disabled{background:#555;cursor:not-allowed;}
 
 <div class="panel" id="shop">
 <div class="tabs">
-<div class="tab active" onclick="tab('skins', this)">SKINS</div>
-<div class="tab" onclick="tab('upgrades', this)">UPGRADES</div>
+<div class="tab active" onclick="tab('skins')">SKINS</div>
+<div class="tab" onclick="tab('upgrades')">UPGRADES</div>
 </div>
 <div id="skinsTab"></div>
 <div id="upgradesTab" style="display:none;">
@@ -232,195 +138,6 @@ button:disabled{background:#555;cursor:not-allowed;}
 
 <canvas id="game" width="400" height="600"></canvas>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-import { getDatabase, ref, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
-
-const cfg = {apiKey:"AIzaSyBBRFz8drGGRp_kpUR5HiIisR6WYdFnqI4",authDomain:"rrt-flappy-game.firebaseapp.com",databaseURL:"https://rrt-flappy-game-default-rtdb.europe-west1.firebasedatabase.app",projectId:"rrt-flappy-game",storageBucket:"rrt-flappy-game.firebasestorage.app",messagingSenderId:"376438140987",appId:"1:376438140987:web:15d964c26fa4a31ec4ec1e"};
-const app = initializeApp(cfg);
-const auth = getAuth(app);
-const db = getDatabase(app);
-const provider = new GoogleAuthProvider();
-
-const authOverlay = document.getElementById('authOverlay');
-const tLogin = document.getElementById('tLogin');
-const tSignup = document.getElementById('tSignup');
-const fLogin = document.getElementById('fLogin');
-const fSignup = document.getElementById('fSignup');
-const email1 = document.getElementById('email1');
-const pass1 = document.getElementById('pass1');
-const email2 = document.getElementById('email2');
-const pass2 = document.getElementById('pass2');
-const btnLogin = document.getElementById('btnLogin');
-const btnSignup = document.getElementById('btnSignup');
-const btnGoogle = document.getElementById('btnGoogle');
-const authErr = document.getElementById('authErr');
-const userInfo = document.getElementById('userInfo');
-
-const btnGuest = document.getElementById('btnGuest');
-const forgotLink = document.getElementById('forgotLink');
-const nameSetup = document.getElementById('nameSetup');
-const nameInput = document.getElementById('nameInput');
-const saveNameBtn = document.getElementById('saveNameBtn');
-window.isGuest = false;
-
-if(btnGuest){
-  btnGuest.onclick = ()=>{
-    window.isGuest = true;
-    window.currentUser = null;
-    authOverlay.style.display='none';
-    if(userInfo) userInfo.textContent = 'Gast-Modus';
-    const lb = document.getElementById('lbBtn'); if(lb) lb.style.opacity='0.5';
-    if(window._gameLoad) window._gameLoad();
-  };
-}
-if(forgotLink){
-  forgotLink.onclick = async ()=>{
-    const email = prompt('Deine Email für Reset:');
-    if(!email) return;
-    try{ await sendPasswordResetEmail(auth, email); alert('Email gesendet!'); }
-    catch(e){ alert('Fehler'); }
-  };
-}
-
-async function askName(){
-  return new Promise(res=>{
-    nameSetup.style.display='flex';
-    saveNameBtn.onclick = ()=>{
-      const n = nameInput.value.trim().slice(0,16);
-      if(n.length<2) return;
-      nameSetup.style.display='none';
-      res(n);
-    };
-  });
-}
-
-window.openLB = async ()=>{
-  if(window.isGuest || !auth.currentUser){ alert('Nur für eingeloggte Spieler'); return; }
-  const p = document.getElementById('leaderboard'); p.style.display='block'; setTimeout(()=>p.classList.add('show'),10);
-  const list = document.getElementById('lbList'); list.innerHTML='Lade...';
-  try{
-    const snap = await get(ref(db, 'leaderboard'));
-    const arr = []; snap.forEach(c=>arr.push(c.val()));
-    arr.sort((a,b)=>b.coins-a.coins);
-    list.innerHTML = arr.slice(0,50).map((u,i)=>{
-      const verified = u.email==='rojatcankunduru708@gmail' && u.displayName==='RRT';
-      return `<div style="display:flex;justify-content:space-between;background:#222;margin:5px;padding:8px;border-radius:8px"><span>${i+1}. ${u.displayName} ${verified?'<span style="color:#3b82f6">✓</span>':''}</span><b>${u.coins}🪙</b></div>`;
-    }).join('');
-  }catch(e){ list.innerHTML='Fehler'; }
-};
-window.closeLB = ()=>{ const p=document.getElementById('leaderboard'); p.classList.remove('show'); setTimeout(()=>p.style.display='none',200); };
-
-window.openSettings = ()=>{
-  const p=document.getElementById('settingsPanel'); const b=document.getElementById('settingsBody');
-  if(window.isGuest || !auth.currentUser){
-    b.innerHTML = '<button onclick="document.getElementById(\'authOverlay\').style.display=\'flex\';closeSettings()" style="width:100%;padding:10px">Einloggen</button>';
-  }else{
-    b.innerHTML = `<p>${auth.currentUser.email}</p><button onclick="changeName()" style="width:100%;margin:5px 0">Name ändern</button><button onclick="logout()" style="width:100%;margin:5px 0">Ausloggen</button>`;
-  }
-  p.style.display='block'; setTimeout(()=>p.classList.add('show'),10);
-};
-window.closeSettings = ()=>{ const p=document.getElementById('settingsPanel'); p.classList.remove('show'); setTimeout(()=>p.style.display='none',200); };
-window.changeName = async ()=>{ const n=await askName(); if(window._fbData){ window._fbData.displayName=n; saveGame(); } };
-
-function showTab(which){
-  const isLogin = which==='login';
-  tLogin.classList.toggle('active', isLogin);
-  tSignup.classList.toggle('active', !isLogin);
-  fLogin.classList.toggle('hidden', !isLogin);
-  fSignup.classList.toggle('hidden', isLogin);
-  authErr.textContent='';
-}
-tLogin.onclick = ()=>showTab('login');
-tSignup.onclick = ()=>showTab('signup');
-
-btnLogin.onclick = async ()=>{
-  authErr.textContent='';
-  try{
-    await signInWithEmailAndPassword(auth, email1.value.trim(), pass1.value);
-  }catch(e){
-    authErr.textContent = 'Falsche Email oder Passwort';
-  }
-};
-btnSignup.onclick = async ()=>{
-  authErr.textContent='';
-  if(pass2.value.length<6){ authErr.textContent='Passwort zu kurz'; return; }
-  try{
-    await createUserWithEmailAndPassword(auth, email2.value.trim(), pass2.value);
-  }catch(e){
-    authErr.textContent = e.code==='auth/email-already-in-use' ? 'Email existiert bereits' : 'Fehler bei Registrierung';
-  }
-};
-btnGoogle.onclick = async ()=>{
-  authErr.textContent='';
-  try{ await signInWithPopup(auth, provider); }catch(e){ authErr.textContent='Google Login abgebrochen'; }
-};
-
-window.logout = ()=> signOut(auth);
-
-window.saveToFirebase = async (data)=>{
-  if(!auth.currentUser) return;
-  try{
-    const displayName = window._fbData?.displayName || auth.currentUser.email.split('@')[0];
-    await set(ref(db, 'users/'+auth.currentUser.uid), {
-      displayName,
-      coins: data.coins,
-      best: data.best,
-      currentSkin: data.currentSkin,
-      hasShield: data.hasShield,
-      shieldEquipped: data.shieldEquipped,
-      hasDoubleCoins: data.hasDoubleCoins,
-      skins: data.skins,
-      email: auth.currentUser.email,
-      lastLogin: serverTimestamp()
-    });
-    await set(ref(db, 'leaderboard/'+auth.currentUser.uid), {displayName, coins: data.coins||0, best: data.best||0, email: auth.currentUser.email, updatedAt: Date.now()});
-  }catch(e){ 
-    console.error('Firebase save failed', e);
-  }
-};
-
-onAuthStateChanged(auth, async (user)=>{
-  window.currentUser = user;
-  if(user){
-    authOverlay.style.display='none';
-    window.isGuest=false;
-    if(userInfo) userInfo.textContent = 'Lade Cloud-Daten...';
-    try{
-      const snap = await get(ref(db, 'users/'+user.uid));
-      let needName = false;
-      if(snap.exists()){
-        window._fbData = snap.val();
-        if(!window._fbData.displayName){ needName=true; }
-        localStorage.setItem('rrt_flappy_save', JSON.stringify(window._fbData));
-      } else {
-        const local = localStorage.getItem('rrt_flappy_save');
-        if(local){
-          try{
-            const data = JSON.parse(local);
-            await set(ref(db, 'users/'+user.uid), {...data, email:user.email, lastLogin: serverTimestamp()});
-            window._fbData = data;
-          }catch(e){ console.error(e); }
-        } else {
-          window._fbData = null;
-        }
-      }
-      if(needName){ const n=await askName(); window._fbData.displayName=n; await window.saveToFirebase(window._fbData); }
-    }catch(e){ 
-      console.error('Firebase load failed', e);
-    }
-    if(typeof window._gameLoad === 'function') window._gameLoad();
-    if(userInfo) userInfo.textContent = 'Eingeloggt als: ' + user.email;
-  }else{
-    authOverlay.style.display='flex';
-    if(userInfo) userInfo.textContent = '';
-    window._fbData = null;
-    if(typeof window._gameLoad === 'function') window._gameLoad();
-  }
-});
-</script>
-
 <script>
 const GAME_VERSION = "1.1.0";
 const c=document.getElementById("game");
@@ -434,7 +151,6 @@ const log=document.getElementById("log");
 const coinsUI=document.getElementById("coinsUI");
 const bestUI=document.getElementById("bestUI");
 const skinsTab=document.getElementById("skinsTab");
-const upgradesTab=document.getElementById("upgradesTab");
 
 let state="menu";
 let bird,pipes=[];
@@ -445,6 +161,7 @@ let shieldEquipped = false;
 let hasDoubleCoins = false;
 let doubleCoinsActive = false;
 
+// SAVE SYSTEM
 function saveGame(){
   const data = {
     coins,
@@ -456,15 +173,10 @@ function saveGame(){
     hasDoubleCoins
   };
   localStorage.setItem("rrt_flappy_save", JSON.stringify(data));
-  if(window.currentUser && window.saveToFirebase){
-    window.saveToFirebase(data);
-  }
 }
 
 function loadGame(){
-  const fbData = window._fbData;
-  const localData = JSON.parse(localStorage.getItem("rrt_flappy_save"));
-  const data = fbData ?? localData;
+  const data = JSON.parse(localStorage.getItem("rrt_flappy_save"));
   if(!data) return;
 
   coins = data.coins?? 0;
@@ -481,60 +193,72 @@ function loadGame(){
       }
     }
   }
-  if(fbData){
-    localStorage.setItem("rrt_flappy_save", JSON.stringify(fbData));
-  }
 }
-window._gameLoad = ()=>{
-  loadGame();
-  updateUI();
-  if(typeof renderShieldBtn==='function') renderShieldBtn();
-  if(typeof renderDoubleCoinsBtn==='function') renderDoubleCoinsBtn();
-  if(typeof renderShop==='function' && document.getElementById('shop').style.display!=='none') renderShop();
-};
 
+// UPDATE CHECK
 async function checkUpdate(){
   try{
     const res = await fetch("update.json?t=" + Date.now());
     const data = await res.json();
     const lastSeen = localStorage.getItem("rrt_version_seen");
+
     if(data.version!== GAME_VERSION && data.version!== lastSeen){
-      if(confirm(`🔥 UPDATE ${data.version} verfügbar!\n\n${data.message}\n\nJetzt aktualisieren?`)){
+      if(confirm(`🔥 UPDATE ${data.version} available!\n\n${data.message}\n\nUpdate now?`)){
         localStorage.setItem("rrt_version_seen", data.version);
         location.reload();
       }
     }
   }catch(e){}
 }
+
 setInterval(() => {
   if(state === "game" || state === "menu") checkUpdate();
 }, 30000);
 
+// SOUND
 const AC=window.AudioContext||window.webkitAudioContext;
 const audio=new AC();
 
 function music(){
 const notes=[440,660,550,440,330,440,550,660];
 let i=0;
+
 setInterval(()=>{
 if(state!=="game")return;
 if(audio.state==="suspended")audio.resume();
+
 let o=audio.createOscillator();
 let g=audio.createGain();
-o.type="sine"; o.frequency.value=notes[i%notes.length]; g.gain.value=0.05;
-o.connect(g); g.connect(audio.destination);
-o.start(); o.stop(audio.currentTime+0.12); i++;
+
+o.type="sine";
+o.frequency.value=notes[i%notes.length];
+
+g.gain.value=0.05;
+
+o.connect(g);
+g.connect(audio.destination);
+
+o.start();
+o.stop(audio.currentTime+0.12);
+
+i++;
 },150);
 }
 music();
 
 function beep(f=440){
 if(audio.state==="suspended")audio.resume();
-let o=audio.createOscillator(); let g=audio.createGain();
-o.connect(g);g.connect(audio.destination); o.frequency.value=f; g.gain.value=0.08;
-o.start(); g.gain.exponentialRampToValueAtTime(0.0001,audio.currentTime+0.1); o.stop(audio.currentTime+0.1);
+let o=audio.createOscillator();
+let g=audio.createGain();
+o.connect(g);g.connect(audio.destination);
+o.frequency.value=f;
+g.gain.value=0.08;
+o.start();
+g.gain.exponentialRampToValueAtTime(0.0001,audio.currentTime+0.1);
+o.stop(audio.currentTime+0.1);
 }
 
+// SKINS - HERO SKINS 20 COINS
 let skins={
 default:{price:0,owned:true,color:"yellow",name:"Classic"},
 red:{price:10,owned:false,color:"red",name:"Red"},
@@ -549,60 +273,105 @@ goku:{price:20,owned:false,color:"#FF6600",secondary:"#0099FF",name:"Goku",effec
 };
 let currentSkin="default";
 
+// PARTICLES
 let particles=[];
 function spawnParticle(x,y,type="normal",vx=0,vy=0){
-let colors = { normal:"white", web:"#FFFFFF", cape:"#FF0000", smoke:"#333333", sparks:"#FFD700", lightning:"#FFFF00", aura:"#00BFFF", trail:"#FFFFFF" };
-particles.push({ x,y, vx:vx||(Math.random()-0.5)*4, vy:vy||(Math.random()-0.5)*4, life:30, color:colors[type]||"white", size:type==="aura"?8:type==="lightning"?2:type==="trail"?4:3, type });
+let colors = {
+  normal: "white",
+  web: "#FFFFFF",
+  cape: "#FF0000",
+  smoke: "#333333",
+  sparks: "#FFD700",
+  lightning: "#FFFF00",
+  aura: "#00BFFF",
+  trail: "#FFFFFF"
+};
+particles.push({
+  x,y,
+  vx:vx || (Math.random()-0.5)*4,
+  vy:vy || (Math.random()-0.5)*4,
+  life:30,
+  color: colors[type] || "white",
+  size: type === "aura"? 8 : type === "lightning"? 2 : type === "trail"? 4 : 3,
+  type: type
+});
 }
 
+// GAME
 function reset(){
   bird={x:100,y:300,vel:0,angle:0,invincible:0,animFrame:0,jumpEffect:0};
-  pipes=[]; score=0;
+  pipes=[];
+  score=0;
   doubleCoinsActive = hasDoubleCoins;
-  if(hasDoubleCoins){ hasDoubleCoins = false; saveGame(); renderDoubleCoinsBtn(); }
+  if(hasDoubleCoins) {
+    hasDoubleCoins = false;
+    saveGame();
+    renderDoubleCoinsBtn();
+  }
 }
 function startGame(){reset();state="game";menu.style.display="none";dead.style.display="none";}
-function backMenu(){state="menu";menu.style.display="flex";dead.style.display="none";updateUI();saveGame();}
+function backMenu(){state="menu";menu.style.display="block";dead.style.display="none";updateUI();saveGame();}
 
-function openShop(){shop.style.display="block";setTimeout(()=>shop.classList.add("show"),10);renderShop();renderShieldBtn();renderDoubleCoinsBtn();}
-function closeShop(){shop.classList.remove("show");setTimeout(()=>shop.style.display="none",200);saveGame();}
+// SHOP
+function openShop(){shop.style.display="block";shop.classList.add("show");renderShop();renderShieldBtn();renderDoubleCoinsBtn();}
+function closeShop(){shop.style.display="none";shop.classList.remove("show");saveGame();}
 
 async function openUpdates(){
   updates.style.display="block";
-  requestAnimationFrame(()=>{ updates.classList.add("show"); });
+  requestAnimationFrame(()=>{
+    updates.classList.add("show");
+  });
+
   log.innerHTML = "Loading...";
+
   try {
     const res = await fetch("update.json?t=" + Date.now());
     if(!res.ok) throw new Error("HTTP " + res.status);
+
     const data = await res.json();
+
     if(data.patchNotes){
       log.innerHTML = `<b>Version ${data.version}</b><br><br>` + data.patchNotes.map(t => `• ${t}`).join("<br>");
       return;
     }
-    log.innerHTML = "Keine Updates gefunden";
+
+    log.innerHTML = "No updates found";
   } catch (err) {
-    log.innerHTML = "❌ Updates konnten nicht geladen werden";
+    log.innerHTML = "❌ Failed to load updates";
+    console.error(err);
   }
 }
 
 function closeUpdates(){
   updates.classList.remove("show");
-  setTimeout(()=>{ updates.style.display="none"; }, 200);
+  setTimeout(()=>{
+    updates.style.display="none";
+  }, 200);
 }
 
-function tab(t, el){
+function tab(t){
 skinsTab.style.display=t==="skins"?"block":"none";
 upgradesTab.style.display=t==="upgrades"?"block":"none";
-document.querySelectorAll('#shop .tab').forEach(e=>e.classList.remove('active'));
-if(el) el.classList.add('active');
+document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+event.target.classList.add('active');
 }
 
 function renderShop(){
 let html="";
 for(let k in skins){
 let s=skins[k];
-let btnTxt = "BUY"; let btnDisabled = "";
-if(s.owned){ btnTxt = currentSkin===k ? "EQUIPPED" : "EQUIP"; btnDisabled = currentSkin===k ? "disabled" : ""; }
+let btnTxt = "BUY";
+let btnDisabled = "";
+
+if(s.owned){
+  if(currentSkin === k){
+    btnTxt = "EQUIPPED";
+    btnDisabled = "disabled";
+  } else {
+    btnTxt = "EQUIP";
+  }
+}
+
 html+=`<div class='shopItem'>${s.name}<br>Price:${s.price}<br><canvas id='p_${k}' width='100' height='50' class='preview'></canvas><br><button onclick="${s.owned?`equip('${k}')`:`buySkin('${k}')`}" ${btnDisabled}>${btnTxt}</button></div>`;
 }
 skinsTab.innerHTML=html;
@@ -611,148 +380,510 @@ for(let k in skins) drawPreview(k);
 
 function buySkin(k){
 let s=skins[k];
-if(coins>=s.price){ coins-=s.price; s.owned=true; currentSkin=k; updateUI(); renderShop(); saveGame(); beep(800); }
+if(coins>=s.price){
+coins-=s.price;
+s.owned=true;
+currentSkin=k;
+updateUI();
+renderShop();
+saveGame();
+beep(800);
+}
 }
 function equip(k){currentSkin=k;renderShop();saveGame();beep(600);}
 
+// SHIELD SYSTEM
 function buyShield(){
-  if(coins >= 50 &&!hasShield){ coins -= 50; hasShield = true; shieldEquipped = true; updateUI(); renderShieldBtn(); saveGame(); beep(800); }
+  if(coins >= 50 &&!hasShield){
+    coins -= 50;
+    hasShield = true;
+    shieldEquipped = true;
+    updateUI();
+    renderShieldBtn();
+    saveGame();
+    beep(800);
+  }
 }
+
 function renderShieldBtn(){
-  const btn = document.getElementById("shieldBtn"); if(!btn) return;
-  if(!hasShield){ btn.innerText = "BUY 50"; btn.disabled = false; btn.onclick = buyShield; }
-  else if(shieldEquipped){ btn.innerText = "EQUIPPED"; btn.disabled = true; }
-  else{ btn.innerText = "EQUIP"; btn.disabled = false; btn.onclick = () => { shieldEquipped = true; renderShieldBtn(); saveGame(); beep(600); } }
+  const btn = document.getElementById("shieldBtn");
+  if(!btn) return;
+
+  if(!hasShield){
+    btn.innerText = "BUY 50";
+    btn.disabled = false;
+    btn.onclick = buyShield;
+  } else if(shieldEquipped){
+    btn.innerText = "EQUIPPED";
+    btn.disabled = true;
+  } else {
+    btn.innerText = "EQUIP";
+    btn.disabled = false;
+    btn.onclick = () => {
+      shieldEquipped = true;
+      renderShieldBtn();
+      saveGame();
+      beep(600);
+    }
+  }
 }
 
+// DOUBLE COINS SYSTEM
 function buyDoubleCoins(){
-  if(coins >= 200 &&!hasDoubleCoins){ coins -= 200; hasDoubleCoins = true; updateUI(); renderDoubleCoinsBtn(); saveGame(); beep(800); }
-}
-function renderDoubleCoinsBtn(){
-  const btn = document.getElementById("doubleCoinsBtn"); if(!btn) return;
-  if(!hasDoubleCoins){ btn.innerText = "BUY 200"; btn.disabled = false; btn.onclick = buyDoubleCoins; }
-  else{ btn.innerText = "READY FOR NEXT ROUND"; btn.disabled = true; }
+  if(coins >= 200 &&!hasDoubleCoins){
+    coins -= 200;
+    hasDoubleCoins = true;
+    updateUI();
+    renderDoubleCoinsBtn();
+    saveGame();
+    beep(800);
+  }
 }
 
+function renderDoubleCoinsBtn(){
+  const btn = document.getElementById("doubleCoinsBtn");
+  if(!btn) return;
+
+  if(!hasDoubleCoins){
+    btn.innerText = "BUY 200";
+    btn.disabled = false;
+    btn.onclick = buyDoubleCoins;
+  } else {
+    btn.innerText = "READY FOR NEXT ROUND";
+    btn.disabled = true;
+  }
+}
+
+// PREVIEW
 function drawPreview(k){
-let canvas=document.getElementById("p_"+k); if(!canvas)return; let ctx=canvas.getContext("2d"); let t=0;
+let canvas=document.getElementById("p_"+k);
+if(!canvas)return;
+let ctx=canvas.getContext("2d");
+let t=0;
+
 function loop(){
-ctx.clearRect(0,0,100,50); t+=0.1; let s=skins[k];
-let scale = 1; let rot = 0;
+ctx.clearRect(0,0,100,50);
+t+=0.1;
+let s=skins[k];
+
+// Animation im Preview
+let scale = 1;
+let rot = 0;
 if(k === "flash") rot = Math.sin(t*10)*0.3;
 if(k === "goku") scale = 1 + Math.sin(t*5)*0.1;
 if(k === "ironman") scale = 1 + Math.sin(t*8)*0.05;
-ctx.save(); ctx.translate(50,25); ctx.scale(scale,scale); ctx.rotate(rot);
-ctx.fillStyle=s.color; ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
-if(s.secondary){ ctx.fillStyle=s.secondary; ctx.beginPath(); ctx.arc(0,0,6,0,Math.PI*2); ctx.fill(); }
+
+ctx.save();
+ctx.translate(50,25);
+ctx.scale(scale,scale);
+ctx.rotate(rot);
+
+ctx.fillStyle=s.color;
+ctx.beginPath();
+ctx.arc(0,0,10,0,Math.PI*2);
+ctx.fill();
+
+if(s.secondary){
+  ctx.fillStyle=s.secondary;
+  ctx.beginPath();
+  ctx.arc(0,0,6,0,Math.PI*2);
+  ctx.fill();
+}
+
+// Eyes
 ctx.fillStyle="white";
-if(k === "batman"){ ctx.beginPath(); ctx.moveTo(3,-3); ctx.lineTo(6,-2); ctx.lineTo(3,-1); ctx.fill(); ctx.moveTo(3,3); ctx.lineTo(6,2); ctx.lineTo(3,1); ctx.fill(); }
-else{ ctx.beginPath(); ctx.arc(3,-3,3,0,Math.PI*2); ctx.arc(3,3,3,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(4,-3,1.3,0,Math.PI*2); ctx.arc(4,3,1.3,0,Math.PI*2); ctx.fill(); }
-if(k === "superman"){ ctx.fillStyle="#FF0000"; ctx.font="bold 8px Arial"; ctx.textAlign="center"; ctx.fillText("S",0,3); }
-if(k === "goku"){ ctx.fillStyle="#000"; ctx.font="bold 8px Arial"; ctx.textAlign="center"; ctx.fillText("亀",0,3); }
-if(k === "ironman"){ ctx.fillStyle="#FFFF00"; ctx.shadowBlur = 10; ctx.shadowColor = "#FFFF00"; ctx.beginPath(); ctx.arc(3,-3,2,0,Math.PI*2); ctx.arc(3,3,2,0,Math.PI*2); ctx.fill(); ctx.shadowBlur = 0; }
-let flap=Math.sin(t*8); ctx.fillStyle="rgba(255,255,255,0.9)"; ctx.beginPath();
-if(flap>0){ ctx.moveTo(-10,0); ctx.quadraticCurveTo(-35,-15,-20,-8); ctx.quadraticCurveTo(-12,-5,-10,0); }else{ ctx.moveTo(-10,0); ctx.quadraticCurveTo(-35,15,-20,8); ctx.quadraticCurveTo(-12,5,-10,0); }
-ctx.fill(); ctx.restore(); requestAnimationFrame(loop);
+if(k === "batman"){
+  ctx.beginPath();
+  ctx.moveTo(3,-3); ctx.lineTo(6,-2); ctx.lineTo(3,-1); ctx.fill();
+  ctx.moveTo(3,3); ctx.lineTo(6,2); ctx.lineTo(3,1); ctx.fill();
+} else {
+  ctx.beginPath();
+  ctx.arc(3,-3,3,0,Math.PI*2);
+  ctx.arc(3,3,3,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle="black";
+  ctx.beginPath();
+  ctx.arc(4,-3,1.3,0,Math.PI*2);
+  ctx.arc(4,3,1.3,0,Math.PI*2);
+  ctx.fill();
+}
+
+if(k === "superman"){
+  ctx.fillStyle="#FF0000";
+  ctx.font="bold 8px Arial";
+  ctx.textAlign="center";
+  ctx.fillText("S",0,3);
+}
+if(k === "goku"){
+  ctx.fillStyle="#000";
+  ctx.font="bold 8px Arial";
+  ctx.textAlign="center";
+  ctx.fillText("亀",0,3);
+}
+if(k === "ironman"){
+  ctx.fillStyle="#FFFF00";
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = "#FFFF00";
+  ctx.beginPath();
+  ctx.arc(3,-3,2,0,Math.PI*2);
+  ctx.arc(3,3,2,0,Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+// FLÜGEL
+let flap=Math.sin(t*8);
+ctx.fillStyle="rgba(255,255,255,0.9)";
+ctx.beginPath();
+if(flap>0){
+ctx.moveTo(-10,0);
+ctx.quadraticCurveTo(-35,-15,-20,-8);
+ctx.quadraticCurveTo(-12,-5,-10,0);
+}else{
+ctx.moveTo(-10,0);
+ctx.quadraticCurveTo(-35,15,-20,8);
+ctx.quadraticCurveTo(-12,5,-10,0);
+}
+ctx.fill();
+
+ctx.restore();
+
+requestAnimationFrame(loop);
 }
 loop();
 }
 
+// INPUT
 document.addEventListener("keydown",e=>{if(e.code==="Space")jump();});
-c.addEventListener("touchstart",e=>{e.preventDefault();jump();},{passive:false});
+c.addEventListener("touchstart",e=>{e.preventDefault();jump();});
 c.addEventListener("click",()=>jump());
 function jump(){
-  if(state!=="game")return; bird.vel=-6; bird.jumpEffect = 10; beep(520);
-  let skin = skins[currentSkin]; let effect = skin.effect || "normal";
-  if(effect === "web") { for(let i=0;i<8;i++) spawnParticle(bird.x,bird.y,"web",-Math.random()*3-2,(Math.random()-0.5)*4); }
-  else if(effect === "sparks") { for(let i=0;i<12;i++) spawnParticle(bird.x,bird.y,"sparks",(Math.random()-0.5)*5,(Math.random()-0.5)*5); }
-  else if(effect === "lightning") { for(let i=0;i<10;i++) spawnParticle(bird.x,bird.y,"lightning",-Math.random()*6-3,0); }
-  else if(effect === "smoke") { for(let i=0;i<6;i++) spawnParticle(bird.x,bird.y,"smoke",-Math.random()*2-1,(Math.random()-0.5)*2); }
-  else { spawnParticle(bird.x,bird.y); }
+  if(state!=="game")return;
+  bird.vel=-6;
+  bird.jumpEffect = 10; // Für Animationen
+  beep(520);
+
+  let skin = skins[currentSkin];
+  let effect = skin.effect || "normal";
+
+  // Spawn special particles on jump
+  if(effect === "web") {
+    for(let i=0;i<8;i++) spawnParticle(bird.x,bird.y,"web",-Math.random()*3-2,(Math.random()-0.5)*4);
+  } else if(effect === "sparks") {
+    for(let i=0;i<12;i++) spawnParticle(bird.x,bird.y,"sparks",(Math.random()-0.5)*5,(Math.random()-0.5)*5);
+  } else if(effect === "lightning") {
+    for(let i=0;i<10;i++) spawnParticle(bird.x,bird.y,"lightning",-Math.random()*6-3,0);
+  } else if(effect === "smoke") {
+    for(let i=0;i<6;i++) spawnParticle(bird.x,bird.y,"smoke",-Math.random()*2-1,(Math.random()-0.5)*2);
+  } else {
+    spawnParticle(bird.x,bird.y);
+  }
 }
 
-let pipeGap=150; let speed=3;
+// DIFFICULTY
+let pipeGap=150;
+let speed=3;
 function difficulty(){pipeGap=Math.max(90,150-score*2);speed=3+score*0.05;}
 
+// UPDATE
 function update(){
-if(state!=="game")return; difficulty();
-bird.vel+=0.35; bird.y+=bird.vel; bird.angle=Math.max(-0.5,Math.min(0.5,bird.vel*0.08)); bird.animFrame++; if(bird.jumpEffect > 0) bird.jumpEffect--; if(bird.invincible > 0) bird.invincible--;
-if(frame%90===0){ pipes.push({x:400,top:100+Math.random()*250,passed:false}); }
+if(state!=="game")return;
+
+difficulty();
+
+bird.vel+=0.35;
+bird.y+=bird.vel;
+bird.angle=bird.vel*0.08;
+bird.animFrame++;
+if(bird.jumpEffect > 0) bird.jumpEffect--;
+
+if(bird.invincible > 0) bird.invincible--;
+
+if(frame%90===0){
+pipes.push({x:400,top:100+Math.random()*250,passed:false});
+}
+
 for(let p of pipes){
 p.x-=speed;
-if(!p.passed && p.x<bird.x){ p.passed=true; score++; coins += doubleCoinsActive? 2 : 1; beep(700); }
-if(bird.invincible <= 0){ if(bird.x+15>p.x && bird.x-15<p.x+70 && (bird.y-12<p.top||bird.y+12>p.top+pipeGap))die(); }
+
+if(!p.passed && p.x<bird.x){
+p.passed=true;
+score++;
+coins += doubleCoinsActive? 2 : 1;
+beep(700);
 }
-pipes = pipes.filter(p=>p.x>-80);
+
+if(bird.invincible <= 0){
+  if(bird.x<p.x+70&&bird.x+20>p.x&&(bird.y<p.top||bird.y>p.top+pipeGap))die();
+}
+}
+
+// Continuous effects
 let skin = skins[currentSkin];
-if(skin.effect === "aura") { for(let i=0;i<3;i++) spawnParticle(bird.x+(Math.random()-0.5)*20,bird.y+(Math.random()-0.5)*20,"aura"); }
+if(skin.effect === "aura") {
+  for(let i=0;i<3;i++) spawnParticle(bird.x+(Math.random()-0.5)*20,bird.y+(Math.random()-0.5)*20,"aura");
+}
 if(skin.effect === "cape") spawnParticle(bird.x-15,bird.y,"cape",-2,0);
 if(skin.effect === "smoke") spawnParticle(bird.x-10,bird.y,"smoke",-1,0);
-if(skin.effect === "lightning") { spawnParticle(bird.x-20,bird.y,"trail",0,0); }
+// Flash Speed Trail
+if(skin.effect === "lightning") {
+  spawnParticle(bird.x-20,bird.y,"trail",0,0);
+}
+
 if(bird.y>520||bird.y<0)die();
 }
 
 function die(){
-  if(shieldEquipped && hasShield){ hasShield = false; shieldEquipped = false; bird.y = 250; bird.vel = -4; bird.invincible = 60; beep(900); saveGame(); renderShieldBtn(); for(let i=0;i<20;i++) spawnParticle(bird.x,bird.y,"sparks"); return; }
-  state="dead"; dead.style.display="flex"; if(score>best)best=score; beep(140); updateUI(); saveGame();
+  if(shieldEquipped && hasShield){
+    hasShield = false;
+    shieldEquipped = false;
+    bird.y = 250;
+    bird.vel = -4;
+    bird.invincible = 60;
+    beep(900);
+    saveGame();
+    renderShieldBtn();
+    return;
+  }
+
+  state="dead";
+  dead.style.display="block";
+  if(score>best)best=score;
+  beep(140);
+  updateUI();
+  saveGame();
 }
 
+// DRAW
 function draw(){
 ctx.clearRect(0,0,400,600);
-let g=ctx.createLinearGradient(0,0,0,520); g.addColorStop(0,"#70c5ce"); g.addColorStop(1,"#5ab4c7"); ctx.fillStyle=g; ctx.fillRect(0,0,400,520);
-ctx.fillStyle="#de9f5f"; ctx.fillRect(0,520,400,80);
-ctx.fillStyle="#c68a4f"; for(let i=0;i<400;i+=40) ctx.fillRect(i,520,20,80);
+
+ctx.fillStyle="#70c5ce";
+ctx.fillRect(0,0,400,600);
+
+ctx.fillStyle="#d2b48c";
+ctx.fillRect(0,520,400,80);
+
 particles=particles.filter(p=>p.life>0);
-for(let p of particles){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.05; p.life--; ctx.fillStyle=p.color; ctx.globalAlpha = Math.max(0,p.life/30); ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); ctx.globalAlpha = 1; }
-if(state==="game"||state==="dead"){
-for(let p of pipes){ 
-  let grad=ctx.createLinearGradient(p.x,0,p.x+70,0); grad.addColorStop(0,"#2d8f2d"); grad.addColorStop(0.5,"#4caf50"); grad.addColorStop(1,"#2d8f2d");
-  ctx.fillStyle=grad; ctx.fillRect(p.x,0,70,p.top); ctx.fillRect(p.x,p.top+pipeGap,70,600-p.top-pipeGap);
-  ctx.fillStyle="#1b5e1b"; ctx.fillRect(p.x-3,p.top-20,76,20); ctx.fillRect(p.x-3,p.top+pipeGap,76,20);
+for(let p of particles){
+p.x+=p.vx;
+p.y+=p.vy;
+p.life--;
+ctx.fillStyle=p.color;
+ctx.globalAlpha = p.life/30;
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+ctx.fill();
+ctx.globalAlpha = 1;
 }
-ctx.save(); ctx.translate(bird.x,bird.y);
-if(currentSkin === "flash" && bird.jumpEffect > 5){ ctx.globalAlpha = 0.3; ctx.translate(-15,0); ctx.scale(0.9,0.9); drawBird(); ctx.translate(-15,0); ctx.scale(0.9,0.9); drawBird(); ctx.globalAlpha = 1; }
-ctx.rotate(bird.angle); drawBird(); ctx.restore();
-ctx.fillStyle="white"; ctx.font="bold 24px system-ui"; ctx.textAlign="left"; ctx.shadowColor="black"; ctx.shadowBlur=4;
-ctx.fillText(score,15,40); ctx.font="16px system-ui"; ctx.fillText("🪙 "+coins,15,68); ctx.fillText("★ "+best,15,90);
-ctx.shadowBlur=0;
-if(doubleCoinsActive){ ctx.fillStyle="#FFD700"; ctx.font="bold 14px system-ui"; ctx.fillText("2X COINS!",15,112); }
+
+if(state==="game"||state==="dead"){
+ctx.save();
+ctx.translate(bird.x,bird.y);
+
+// Flash Afterimage
+if(currentSkin === "flash" && bird.jumpEffect > 5){
+  ctx.globalAlpha = 0.3;
+  ctx.translate(-15,0);
+  ctx.scale(0.9,0.9);
+  drawBird();
+  ctx.translate(-15,0);
+  ctx.scale(0.9,0.9);
+  drawBird();
+  ctx.globalAlpha = 1;
+}
+
+ctx.rotate(bird.angle);
+drawBird();
+ctx.restore();
+
+for(let p of pipes){
+ctx.fillStyle="green";
+ctx.fillRect(p.x,0,70,p.top);
+ctx.fillRect(p.x,p.top+pipeGap,70,600);
+}
+
+ctx.fillStyle="black";
+ctx.font="20px Arial";
+ctx.textAlign="left";
+ctx.fillText("Score:"+score,10,30);
+ctx.fillText("Coins:"+coins,10,55);
+ctx.fillText("Best:"+best,10,80);
+
+if(doubleCoinsActive){
+  ctx.fillStyle="#FFD700";
+  ctx.font="bold 16px Arial";
+  ctx.fillText("2X COINS!",10,105);
+}
 }
 }
 
 function drawBird(){
 let s=skins[currentSkin];
-if(s.effect === "aura"){ let auraSize = 20 + Math.sin(bird.animFrame*0.2)*5; ctx.shadowBlur = 20; ctx.shadowColor = s.secondary; ctx.strokeStyle = s.secondary; ctx.lineWidth = 3; ctx.globalAlpha = 0.4; ctx.beginPath(); ctx.arc(0,0,auraSize,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha = 1; ctx.shadowBlur = 0; }
-if(shieldEquipped && hasShield){ ctx.strokeStyle = bird.invincible > 0? "cyan" : "#00ff88"; ctx.lineWidth = 3; ctx.globalAlpha = bird.invincible > 0? 0.4+Math.sin(frame*0.5)*0.2 : 0.7; ctx.beginPath(); ctx.arc(0,0,18,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha = 1; }
-if(s.effect === "cape"){ let capeWave = Math.sin(bird.animFrame*0.3)*5; ctx.fillStyle = s.secondary; ctx.beginPath(); ctx.moveTo(-10,-5); ctx.lineTo(-25+capeWave,0); ctx.lineTo(-10,5); ctx.closePath(); ctx.fill(); }
+
+// Goku Aura
+if(s.effect === "aura"){
+  let auraSize = 20 + Math.sin(bird.animFrame*0.2)*5;
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = s.secondary;
+  ctx.strokeStyle = s.secondary;
+  ctx.lineWidth = 3;
+  ctx.globalAlpha = 0.4;
+  ctx.beginPath();
+  ctx.arc(0,0,auraSize,0,Math.PI*2);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+}
+
+// Shield
+if(shieldEquipped && hasShield){
+  ctx.strokeStyle = bird.invincible > 0? "cyan" : "lime";
+  ctx.lineWidth = 3;
+  ctx.globalAlpha = bird.invincible > 0? 0.3 : 0.6;
+  ctx.beginPath();
+  ctx.arc(0,0,18,0,Math.PI*2);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+// Cape for Superman - Animiert
+if(s.effect === "cape"){
+  let capeWave = Math.sin(bird.animFrame*0.3)*5;
+  ctx.fillStyle = s.secondary;
+  ctx.beginPath();
+  ctx.moveTo(-10,-5);
+  ctx.lineTo(-25+capeWave,0);
+  ctx.lineTo(-10,5);
+  ctx.closePath();
+  ctx.fill();
+}
+
+// Main body - Spider-Man wackelt beim Jump
 let scaleX = 1, scaleY = 1;
-if(currentSkin === "spiderman" && bird.jumpEffect > 0) { scaleY = 1.2; scaleX = 0.9; }
-if(currentSkin === "ironman" && bird.jumpEffect > 0) { scaleX = 1.1; }
-ctx.save(); ctx.scale(scaleX, scaleY);
-ctx.fillStyle=s.color; ctx.beginPath(); ctx.arc(0,0,12,0,Math.PI*2); ctx.fill();
-if(s.secondary && s.effect!== "cape"){ ctx.fillStyle=s.secondary; ctx.beginPath(); ctx.arc(0,0,8,0,Math.PI*2); ctx.fill(); }
-ctx.restore();
-ctx.fillStyle="white";
-if(currentSkin === "batman"){ ctx.beginPath(); ctx.moveTo(5,-4); ctx.lineTo(9,-3); ctx.lineTo(5,-2); ctx.fill(); ctx.moveTo(5,4); ctx.lineTo(9,3); ctx.lineTo(5,2); ctx.fill(); }
-else{ ctx.beginPath(); ctx.arc(5,-4,3.5,0,Math.PI*2); ctx.arc(5,4,3.5,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(6,-4,1.5,0,Math.PI*2); ctx.arc(6,4,1.5,0,Math.PI*2); ctx.fill(); }
-if(currentSkin === "superman"){ let sSize = 9 + Math.sin(bird.animFrame*0.2)*1; ctx.fillStyle="#FFD700"; ctx.font=`bold ${sSize}px Arial`; ctx.textAlign="center"; ctx.fillText("S",0,3); }
-if(currentSkin === "goku"){ ctx.fillStyle="#000"; ctx.font="bold 9px Arial"; ctx.textAlign="center"; ctx.fillText("亀",0,3); }
-if(currentSkin === "ironman"){ let glow = 10 + Math.sin(bird.animFrame*0.3)*5; ctx.fillStyle="#FFFF00"; ctx.shadowBlur = glow; ctx.shadowColor = "#FFFF00"; ctx.beginPath(); ctx.arc(5,-4,2.2,0,Math.PI*2); ctx.arc(5,4,2.2,0,Math.PI*2); ctx.fill(); ctx.shadowBlur = 0; }
-let flap=Math.sin(frame*0.8 + bird.jumpEffect*0.5); let wingColor = "rgba(255,255,255,0.95)";
-if(currentSkin === "flash") wingColor = "rgba(255,255,100,0.95)";
-if(currentSkin === "goku") wingColor = "rgba(135,206,255,0.9)";
-ctx.fillStyle=wingColor; ctx.beginPath();
-if(flap>0){ ctx.moveTo(-3,0); ctx.quadraticCurveTo(-28,-18,-12,-9); ctx.quadraticCurveTo(-6,-5,-3,0); }else{ ctx.moveTo(-3,0); ctx.quadraticCurveTo(-28,18,-12,9); ctx.quadraticCurveTo(-6,5,-3,0); }
+if(currentSkin === "spiderman" && bird.jumpEffect > 0) {
+  scaleY = 1.2;
+  scaleX = 0.9;
+}
+if(currentSkin === "ironman" && bird.jumpEffect > 0) {
+  scaleX = 1.1;
+}
+
+ctx.save();
+ctx.scale(scaleX, scaleY);
+
+ctx.fillStyle=s.color;
+ctx.beginPath();
+ctx.arc(0,0,10,0,Math.PI*2);
 ctx.fill();
-if(currentSkin === "goku"){ ctx.strokeStyle = s.secondary; ctx.lineWidth = 2; ctx.globalAlpha = 0.5; ctx.stroke(); ctx.globalAlpha = 1; }
-ctx.fillStyle="#ff9500"; ctx.beginPath(); ctx.moveTo(12,0); ctx.lineTo(18,-3); ctx.lineTo(18,3); ctx.closePath(); ctx.fill();
+
+// Secondary color overlay
+if(s.secondary && s.effect!== "cape"){
+  ctx.fillStyle=s.secondary;
+  ctx.beginPath();
+  ctx.arc(0,0,6,0,Math.PI*2);
+  ctx.fill();
+}
+
+ctx.restore();
+
+// Eyes - Batman = spitze Augen
+ctx.fillStyle="white";
+if(currentSkin === "batman"){
+  ctx.beginPath();
+  ctx.moveTo(4,-4); ctx.lineTo(8,-3); ctx.lineTo(4,-2); ctx.fill();
+  ctx.moveTo(4,4); ctx.lineTo(8,3); ctx.lineTo(4,2); ctx.fill();
+} else {
+  ctx.beginPath();
+  ctx.arc(4,-3,3,0,Math.PI*2);
+  ctx.arc(4,3,3,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle="black";
+  ctx.beginPath();
+  ctx.arc(5,-3,1.3,0,Math.PI*2);
+  ctx.arc(5,3,1.3,0,Math.PI*2);
+  ctx.fill();
+}
+
+// Logos - Superman S pulsiert
+if(currentSkin === "superman"){
+  let sSize = 8 + Math.sin(bird.animFrame*0.2)*1;
+  ctx.fillStyle="#FF0000";
+  ctx.font=`bold ${sSize}px Arial`;
+  ctx.textAlign="center";
+  ctx.fillText("S",0,3);
+}
+if(currentSkin === "goku"){
+  ctx.fillStyle="#000";
+  ctx.font="bold 8px Arial";
+  ctx.textAlign="center";
+  ctx.fillText("亀",0,3);
+}
+if(currentSkin === "ironman"){
+  let glow = 10 + Math.sin(bird.animFrame*0.3)*5;
+  ctx.fillStyle="#FFFF00";
+  ctx.shadowBlur = glow;
+  ctx.shadowColor = "#FFFF00";
+  ctx.beginPath();
+  ctx.arc(4,-3,2,0,Math.PI*2);
+  ctx.arc(4,3,2,0,Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+// FLÜGEL - KRASSER ANIMIERT
+let flap=Math.sin(frame*0.8 + bird.jumpEffect*0.5);
+let wingColor = "rgba(255,255,255,0.9)";
+
+// Flash = gelbe Flügel
+if(currentSkin === "flash") wingColor = "rgba(255,255,0,0.9)";
+// Goku = blaue Energie-Flügel
+if(currentSkin === "goku") wingColor = "rgba(0,191,255,0.7)";
+
+ctx.fillStyle=wingColor;
+ctx.beginPath();
+if(flap>0){
+ctx.moveTo(-2,0);
+ctx.quadraticCurveTo(-25,-15,-10,-8);
+ctx.quadraticCurveTo(-5,-5,-2,0);
+}else{
+ctx.moveTo(-2,0);
+ctx.quadraticCurveTo(-25,15,-10,8);
+ctx.quadraticCurveTo(-5,5,-2,0);
+}
+ctx.fill();
+
+// Extra Flügel für Goku
+if(currentSkin === "goku"){
+  ctx.strokeStyle = s.secondary;
+  ctx.lineWidth = 2;
+  ctx.globalAlpha = 0.5;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+// Glow for Iron Man
+if(currentSkin === "ironman"){
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = s.secondary;
+}
 }
 
 function loop(){frame++;update();draw();requestAnimationFrame(loop);}loop();
 
-function updateUI(){ coinsUI.innerText=coins; bestUI.innerText=best; }
+function updateUI(){
+coinsUI.innerText=coins;
+bestUI.innerText=best;
+}
 
-loadGame(); checkUpdate(); updateUI(); renderShieldBtn(); renderDoubleCoinsBtn();
+// INIT
+loadGame();
+checkUpdate();
+updateUI();
+renderShieldBtn();
+renderDoubleCoinsBtn();
 </script>
 </body>
 </html>
