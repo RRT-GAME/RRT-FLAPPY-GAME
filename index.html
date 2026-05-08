@@ -85,19 +85,75 @@ button{
 }
 button:active{transform:scale(0.95);}
 button:disabled{background:#555;cursor:not-allowed;}
+
+/* AUTH OVERLAY */
+#authOverlay{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:#050507;overflow:hidden}
+#authOverlay .bg{position:fixed;inset:0;background:radial-gradient(800px circle at 20% 20%,#ff950033,transparent 40%),radial-gradient(600px circle at 80% 80%,#0066ff33,transparent 40%),linear-gradient(180deg,#0a0a0f,#050507)}
+#authOverlay .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;animation:f 12s infinite ease-in-out}
+#authOverlay .o1{width:400px;height:400px;background:#ff9500;top:-100px;left:-100px}
+#authOverlay .o2{width:350px;height:350px;background:#0066ff;bottom:-80px;right:-80px;animation-delay:-6s}
+@keyframes f{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-20px)}}
+#authOverlay .card{position:relative;z-index:2;width:92%;max-width:380px;background:rgba(255,255,255,.06);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:32px;box-shadow:0 25px 80px #0009}
+#authOverlay .logo{font-size:32px;font-weight:800;background:linear-gradient(90deg,#ff9500,#ff5e00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;text-align:center}
+#authOverlay .sub{opacity:.7;font-size:14px;margin-bottom:24px;text-align:center;color:#fff}
+#authOverlay .tabs{display:flex;background:#0005;border-radius:14px;padding:4px;margin-bottom:22px}
+#authOverlay .tab{flex:1;padding:10px;text-align:center;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;opacity:.7;transition:.2s;color:#fff}
+#authOverlay .tab.active{background:#fff1;opacity:1}
+#authOverlay .input{width:100%;padding:14px 16px;margin:8px 0;background:#0006;border:1px solid #fff1;border-radius:12px;color:#fff;font-size:15px;outline:none}
+#authOverlay .input:focus{border-color:#ff9500;box-shadow:0 0 0 3px #ff950026}
+#authOverlay .btn{width:100%;padding:14px;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;margin-top:12px;transition:.2s}
+#authOverlay .btn-p{background:linear-gradient(90deg,#ff9500,#ff6a00);color:#fff}
+#authOverlay .btn-p:hover{transform:translateY(-2px)}
+#authOverlay .btn-g{background:#fff;color:#111;display:flex;align-items:center;justify-content:center;gap:10px}
+#authOverlay .divider{display:flex;align-items:center;gap:10px;margin:18px 0;opacity:.5;font-size:12px;color:#fff}
+#authOverlay .divider::before,#authOverlay .divider::after{content:"";flex:1;height:1px;background:#fff2}
+#authOverlay .error{color:#ff5c5c;font-size:13px;min-height:18px;margin-top:8px;text-align:center}
+#authOverlay .hidden{display:none}
+
 </style>
 </head>
 
 <body>
 
+<div id="authOverlay">
+  <div class="bg"><div class="orb o1"></div><div class="orb o2"></div></div>
+  <div class="card" id="authCard">
+    <div class="logo">RRT FLAPPY</div>
+    <div class="sub">Login oder Account erstellen</div>
+    <div class="tabs">
+      <div class="tab active" id="tLogin">Login</div>
+      <div class="tab" id="tSignup">Registrieren</div>
+    </div>
+    <div id="fLogin">
+      <input class="input" id="email1" type="email" placeholder="Email" autocomplete="email">
+      <input class="input" id="pass1" type="password" placeholder="Passwort" autocomplete="current-password">
+      <button class="btn btn-p" id="btnLogin">Einloggen</button>
+    </div>
+    <div id="fSignup" class="hidden">
+      <input class="input" id="email2" type="email" placeholder="Email" autocomplete="email">
+      <input class="input" id="pass2" type="password" placeholder="Passwort (min. 6)" autocomplete="new-password">
+      <button class="btn btn-p" id="btnSignup">Account erstellen</button>
+    </div>
+    <div class="divider"><span>ODER</span></div>
+    <button class="btn btn-g" id="btnGoogle">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.9 0 7.4 1.3 10.1 3.9l7.6-7.6C37.3 2.1 31 0 24 0 14.6 0 6.6 5.4 2.7 13.3l8.9 6.9C13.5 14.1 18.3 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.4c-.5 2.7-2.1 5-4.4 6.5l7 5.4c4.1-3.8 6.5-9.4 6.5-16z"/><path fill="#FBBC05" d="M11.6 20.2c-.6-1.8-.9-3.7-.9-5.7s.3-3.9.9-5.7L2.7 1.9C1 5.3 0 9 0 13c0 4 1 7.7 2.7 11.1l8.9-3.9z"/><path fill="#34A853" d="M24 48c6.5 0 12-2.1 16-5.8l-7-5.4c-2 1.3-4.5 2.1-9 2.1-5.7 0-10.5-3.8-12.2-9l-8.9 6.9C6.6 42.6 14.6 48 24 48z"/></svg>
+      Mit Google
+    </button>
+    <div class="error" id="authErr"></div>
+  </div>
+</div>
+
+
 <div id="ui">
 <div id="menu">
 <h2>RRT-GAMES</h2>
+<p id="userInfo" style="opacity:.7;font-size:12px;margin:4px 0 10px"></p>
 <p>Coins: <span id="coinsUI">0</span></p>
 <p>Best: <span id="bestUI">0</span></p>
 <button onclick="startGame()">START</button>
 <button onclick="openShop()">SHOP</button>
 <button onclick="openUpdates()">UPDATES</button>
+<button onclick="logout()" style="background:#333">LOGOUT</button>
 </div>
 
 <div id="dead" style="display:none;">
@@ -138,6 +194,117 @@ button:disabled{background:#555;cursor:not-allowed;}
 
 <canvas id="game" width="400" height="600"></canvas>
 
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getDatabase, ref, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+
+const cfg = {apiKey:"AIzaSyBBRFz8drGGRp_kpUR5HiIisR6WYdFnqI4",authDomain:"rrt-flappy-game.firebaseapp.com",databaseURL:"https://rrt-flappy-game-default-rtdb.europe-west1.firebasedatabase.app",projectId:"rrt-flappy-game",storageBucket:"rrt-flappy-game.firebasestorage.app",messagingSenderId:"376438140987",appId:"1:376438140987:web:15d964c26fa4a31ec4ec1e"};
+const app = initializeApp(cfg);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const provider = new GoogleAuthProvider();
+
+const authOverlay = document.getElementById('authOverlay');
+const tLogin = document.getElementById('tLogin');
+const tSignup = document.getElementById('tSignup');
+const fLogin = document.getElementById('fLogin');
+const fSignup = document.getElementById('fSignup');
+const email1 = document.getElementById('email1');
+const pass1 = document.getElementById('pass1');
+const email2 = document.getElementById('email2');
+const pass2 = document.getElementById('pass2');
+const btnLogin = document.getElementById('btnLogin');
+const btnSignup = document.getElementById('btnSignup');
+const btnGoogle = document.getElementById('btnGoogle');
+const authErr = document.getElementById('authErr');
+const userInfo = document.getElementById('userInfo');
+
+function showTab(which){
+  const isLogin = which==='login';
+  tLogin.classList.toggle('active', isLogin);
+  tSignup.classList.toggle('active', !isLogin);
+  fLogin.classList.toggle('hidden', !isLogin);
+  fSignup.classList.toggle('hidden', isLogin);
+  authErr.textContent='';
+}
+tLogin.onclick = ()=>showTab('login');
+tSignup.onclick = ()=>showTab('signup');
+
+btnLogin.onclick = async ()=>{
+  authErr.textContent='';
+  try{
+    await signInWithEmailAndPassword(auth, email1.value.trim(), pass1.value);
+  }catch(e){
+    authErr.textContent = 'Falsche Email oder Passwort';
+  }
+};
+btnSignup.onclick = async ()=>{
+  authErr.textContent='';
+  if(pass2.value.length<6){ authErr.textContent='Passwort zu kurz'; return; }
+  try{
+    await createUserWithEmailAndPassword(auth, email2.value.trim(), pass2.value);
+  }catch(e){
+    authErr.textContent = e.code==='auth/email-already-in-use' ? 'Email existiert bereits' : 'Fehler bei Registrierung';
+  }
+};
+btnGoogle.onclick = async ()=>{
+  authErr.textContent='';
+  try{ await signInWithPopup(auth, provider); }catch(e){ authErr.textContent='Google Login abgebrochen'; }
+};
+
+window.logout = ()=> signOut(auth);
+
+window.saveToFirebase = async (data)=>{
+  if(!auth.currentUser) return;
+  try{
+    await set(ref(db, 'users/'+auth.currentUser.uid), {
+      ...data,
+      email: auth.currentUser.email,
+      lastLogin: serverTimestamp()
+    });
+  }catch(e){ console.error('Firebase save failed', e); }
+};
+
+onAuthStateChanged(auth, async (user)=>{
+  window.currentUser = user;
+  if(user){
+    authOverlay.style.display='none';
+    if(userInfo) userInfo.textContent = 'Eingeloggt als: ' + user.email;
+    // Load from Firebase
+    try{
+      const snap = await get(ref(db, 'users/'+user.uid));
+      if(snap.exists()){
+        window._fbData = snap.val();
+        // If local is empty, migrate
+        const local = localStorage.getItem('rrt_flappy_save');
+        if(!local && window._fbData){
+          localStorage.setItem('rrt_flappy_save', JSON.stringify(window._fbData));
+        }
+      } else {
+        // First login: migrate local to cloud
+        const local = localStorage.getItem('rrt_flappy_save');
+        if(local){
+          try{
+            const data = JSON.parse(local);
+            await set(ref(db, 'users/'+user.uid), {...data, email:user.email, lastLogin: serverTimestamp()});
+            window._fbData = data;
+          }catch{}
+        }
+      }
+    }catch(e){ console.error(e); }
+    // trigger game load
+    if(typeof window._gameLoad === 'function') window._gameLoad();
+  }else{
+    authOverlay.style.display='flex';
+    if(userInfo) userInfo.textContent = '';
+    window._fbData = null;
+    if(typeof window._gameLoad === 'function') window._gameLoad();
+  }
+});
+</script>
+
 <script>
 const GAME_VERSION = "1.1.0";
 const c=document.getElementById("game");
@@ -173,10 +340,15 @@ function saveGame(){
     hasDoubleCoins
   };
   localStorage.setItem("rrt_flappy_save", JSON.stringify(data));
+  if(window.currentUser && window.saveToFirebase){
+    window.saveToFirebase(data);
+  }
 }
 
 function loadGame(){
-  const data = JSON.parse(localStorage.getItem("rrt_flappy_save"));
+  const fbData = window._fbData;
+  const localData = JSON.parse(localStorage.getItem("rrt_flappy_save"));
+  const data = fbData || localData;
   if(!data) return;
 
   coins = data.coins?? 0;
@@ -194,6 +366,7 @@ function loadGame(){
     }
   }
 }
+window._gameLoad = loadGame;
 
 // UPDATE CHECK
 async function checkUpdate(){
@@ -203,7 +376,11 @@ async function checkUpdate(){
     const lastSeen = localStorage.getItem("rrt_version_seen");
 
     if(data.version!== GAME_VERSION && data.version!== lastSeen){
-      if(confirm(`🔥 UPDATE ${data.version} available!\n\n${data.message}\n\nUpdate now?`)){
+      if(confirm(`🔥 UPDATE ${data.version} available!
+
+${data.message}
+
+Update now?`)){
         localStorage.setItem("rrt_version_seen", data.version);
         location.reload();
       }
