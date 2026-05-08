@@ -260,42 +260,59 @@ window.saveToFirebase = async (data)=>{
   if(!auth.currentUser) return;
   try{
     await set(ref(db, 'users/'+auth.currentUser.uid), {
-      ...data,
+      coins: data.coins,
+      best: data.best,
+      currentSkin: data.currentSkin,
+      hasShield: data.hasShield,
+      shieldEquipped: data.shieldEquipped,
+      hasDoubleCoins: data.hasDoubleCoins,
+      skins: data.skins,
       email: auth.currentUser.email,
       lastLogin: serverTimestamp()
     });
-  }catch(e){ console.error('Firebase save failed', e); }
+    console.log('✅ Cloud Save erfolgreich');
+  }catch(e){ 
+    console.error('Firebase save failed', e);
+    alert('Cloud-Speicher fehlgeschlagen! Prüfe Firebase Rules.');
+  }
 };
 
 onAuthStateChanged(auth, async (user)=>{
+  const userInfo = document.getElementById('userInfo');
   window.currentUser = user;
   if(user){
     authOverlay.style.display='none';
     if(userInfo) userInfo.textContent = 'Eingeloggt als: ' + user.email;
     // Load from Firebase
+    if(userInfo) userInfo.textContent = 'Lade Cloud-Daten...';
     try{
       const snap = await get(ref(db, 'users/'+user.uid));
       if(snap.exists()){
         window._fbData = snap.val();
-        // If local is empty, migrate
-        const local = localStorage.getItem('rrt_flappy_save');
-        if(!local && window._fbData){
-          localStorage.setItem('rrt_flappy_save', JSON.stringify(window._fbData));
-        }
+        console.log('☁️ Cloud-Daten geladen', window._fbData);
+        // Immer Cloud in local überschreiben
+        localStorage.setItem('rrt_flappy_save', JSON.stringify(window._fbData));
       } else {
-        // First login: migrate local to cloud
+        // Erster Login: local -> cloud
         const local = localStorage.getItem('rrt_flappy_save');
         if(local){
           try{
             const data = JSON.parse(local);
             await set(ref(db, 'users/'+user.uid), {...data, email:user.email, lastLogin: serverTimestamp()});
             window._fbData = data;
-          }catch{}
+            console.log('⬆️ Lokale Daten in Cloud hochgeladen');
+          }catch(e){ console.error(e); }
+        } else {
+          window._fbData = null;
         }
       }
-    }catch(e){ console.error(e); }
+    }catch(e){ 
+      console.error('Firebase load failed', e);
+      alert('Fehler beim Laden aus Firebase! Prüfe Internet und Rules.');
+    }
     // trigger game load
     if(typeof window._gameLoad === 'function') window._gameLoad();
+    if(userInfo) userInfo.textContent = 'Eingeloggt als: ' + user.email;
   }else{
     authOverlay.style.display='flex';
     if(userInfo) userInfo.textContent = '';
@@ -348,7 +365,8 @@ function saveGame(){
 function loadGame(){
   const fbData = window._fbData;
   const localData = JSON.parse(localStorage.getItem("rrt_flappy_save"));
-  const data = fbData || localData;
+  // PRIORITÄT: Firebase immer zuerst!
+  const data = fbData ?? localData;
   if(!data) return;
 
   coins = data.coins?? 0;
@@ -365,8 +383,18 @@ function loadGame(){
       }
     }
   }
+  // Wenn wir aus der Cloud geladen haben, überschreibe local als Cache
+  if(fbData){
+    localStorage.setItem("rrt_flappy_save", JSON.stringify(fbData));
+  }
 }
-window._gameLoad = loadGame;
+window._gameLoad = ()=>{
+  loadGame();
+  updateUI();
+  if(typeof renderShieldBtn==='function') renderShieldBtn();
+  if(typeof renderDoubleCoinsBtn==='function') renderDoubleCoinsBtn();
+  if(typeof renderShop==='function' && document.getElementById('shop').style.display!=='none') renderShop();
+};
 
 // UPDATE CHECK
 async function checkUpdate(){
