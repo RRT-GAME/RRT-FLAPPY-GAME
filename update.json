@@ -1,6 +1,6 @@
 {
-  "version": "1.2.0",
-  "message": "Hero Skins + Double Coins are live and the new log in system and leaderboard!",
+  "version": "1.2.1",
+  "message": "Hero Skins + Double Coins are live and the new log in system and leaderboard are new!",
   "patchNotes": [
     "💰💰 NEW: Double Coins Upgrade – 2x coins for one full run – 200 coins",
     "🦸 NEW: 6 Hero Skins for 20 coins each",
@@ -13,7 +13,7 @@
     "✨ All heroes have unique wing animations",
     "🐛 Bug Fix: Wings now display correctly",
     "new log in system have fun",
-    "NEW LEADERBOARD",
+    "bug fix:LEADERBOARD",
     "next update comming soon have fun!"
   ]
 }
