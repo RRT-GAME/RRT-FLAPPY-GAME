@@ -1,13 +1,13 @@
 {
   "version": "1.3.2",
-  "message": "Performance Update + Money Maker Skin ist da!",
+  "message": "Performance Update + Money Maker Skin is here!",
   "patchNotes": [
-    "🗺️ NEW: Krasse Map – dynamischer Himmel mit Tag/Nacht, Sterne, Wolken und City-Silhouette",
-    "💎 NEW: Money Maker jetzt als Skin (1000 Coins) – 2x Coins + Shield jede Runde + goldene Partikel",
-    "⚡ PERFORMANCE: Spiel läuft jetzt auf allen Geräten gleich schnell, max 120 FPS Cap",
-    "🔐 FIX: Login-Button reagiert sofort mit Lade-Feedback (kein Doppelklick mehr nötig)",
-    "🎨 Map-Boden jetzt mit Gras-Details und besserem Gradient",
-    "🐛 Bug Fix: Shield bleibt bei Money Maker permanent aktiv",
-    "✨ Alle Hero Skins weiterhin verfügbar"
+    "🗺️ NEW: Epic Map – dynamic day/night sky with stars, clouds, and city silhouette",
+    "💎 NEW: Money Maker now as a Skin (1000 Coins) – 2x Coins + Shield every run + golden particles",
+    "⚡ PERFORMANCE: Game now runs at the same speed on all devices, capped at 120 FPS",
+    "🔐 FIX: Login button now responds instantly with loading feedback (no double-tap needed)",
+    "🎨 Ground now features grass details and improved gradient",
+    "🐛 Bug Fix: Shield stays permanently active with Money Maker",
+    "✨ All Hero Skins still available"
   ]
 }
